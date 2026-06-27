@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v27.0</title>
+    <title>JPM Command Center v27.1</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -24,8 +24,9 @@
             color: var(--text-title);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: calc(10px + env(safe-area-inset-top)) 12px 90px 12px;
+            padding: calc(10px + env(safe-area-inset-top)) 12px 95px 12px;
             -webkit-user-select: none;
+            box-sizing: border-box;
         }
         .container { width: 100%; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
         .jpm-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
@@ -51,20 +52,24 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
+        /* 📱 修正：使用 Flex 布局平均分配，確保 5 個按鈕在所有 iPhone 螢幕完美塞滿不溢出 */
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #161b22; border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around;
-            padding: 8px 0 calc(6px + env(safe-area-inset-bottom)) 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 6px calc(8px + env(safe-area-inset-bottom)) 6px;
             z-index: 1000;
+            box-sizing: border-box;
         }
         .nav-item {
-            color: var(--text-sub); font-size: 9.5px; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; gap: 3px;
-            background: none; border: none; width: 20%;
+            color: var(--text-sub); font-size: 9px; font-weight: bold;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: none; border: none; flex: 1; text-align: center;
+            padding: 0; margin: 0; min-width: 0;
         }
+        .nav-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .nav-item.active { color: var(--jpm-gold); }
-        .nav-icon { font-size: 15px; }
+        .nav-icon { font-size: 16px; display: block; }
 
         .group-title { font-size: 11px; font-weight: bold; color: var(--text-sub); margin: 12px 0 6px 2px; }
         .asset-list { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 0 8px; }
@@ -86,12 +91,11 @@
         .asset-price { font-size: 16px; font-weight: bold; font-family: monospace; }
         .asset-chg { font-size: 11px; font-weight: bold; font-family: monospace; }
 
-        /* ⚙️ 設置分頁排版樣式 */
         .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
-        .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; }
-        .config-input { width: 120px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; }
-        .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+        .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; min-width: 0; }
+        .config-input { width: 110px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; min-width: 0; }
+        .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
         .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; color: white; }
         .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
@@ -111,7 +115,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.0</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.1</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
     </div>
 
@@ -217,25 +221,24 @@
 </div>
 
 <nav class="nav-bar">
-    <button class="nav-item active" onclick="switchTab('crypto')">
-        <span class="nav-icon">🪙</span><span>合約巨鯨</span>
+    <button class="nav-item active" id="btn-crypto" onclick="switchTab('crypto')">
+        <span class="nav-icon">🪙</span><span>合約</span>
     </button>
-    <button class="nav-item" onclick="switchTab('taiwan')">
-        <span class="nav-icon">🇹🇼</span><span>台股矩陣</span>
+    <button class="nav-item" id="btn-taiwan" onclick="switchTab('taiwan')">
+        <span class="nav-icon">🇹🇼</span><span>台股</span>
     </button>
-    <button class="nav-item" onclick="switchTab('stock')">
-        <span class="nav-icon">🇺🇸</span><span>美股矩陣</span>
+    <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">
+        <span class="nav-icon">🇺🇸</span><span>美股</span>
     </button>
-    <button class="nav-item" onclick="switchTab('scanner')">
-        <span class="nav-icon">🚨</span><span>爆倉監測</span>
+    <button class="nav-item" id="btn-scanner" onclick="switchTab('scanner')">
+        <span class="nav-icon">🚨</span><span>爆倉</span>
     </button>
-    <button class="nav-item" onclick="switchTab('config')">
+    <button class="nav-item" id="btn-config" onclick="switchTab('config')">
         <span class="nav-icon">⚙️</span><span>設置</span>
     </button>
 </nav>
 
 <script>
-    // 🧠 網頁自適應快取記憶體模組
     let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
     let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
     let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
@@ -262,7 +265,7 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        document.getElementById('btn-' + tabId).classList.add('active');
     }
 
     function renderChips() {
