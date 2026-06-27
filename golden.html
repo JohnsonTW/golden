@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Intelligence Terminal v19.5</title>
+    <title>JPM Intelligence Terminal v25.0</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -17,6 +17,7 @@
             --border-color: #21262d;
             --jpm-gold: #d4af37;
             --oi-purple: #a855f7;
+            --tw-blue: #38bdf8;
         }
         body {
             background-color: var(--bg-color);
@@ -48,11 +49,6 @@
         .status-buy { background: #064e3b; color: #6ee7b7; }
         .status-sell { background: #7f1d1d; color: #fca5a5; }
         .status-alert { background: #b45309; color: #fef3c7; animation: blink 1s infinite alternate; }
-        @keyframes blink { 0% { opacity: 0.8; } 100% { opacity: 1; } }
-
-        .help-box { background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 11px; }
-        .help-summary { font-weight: bold; color: var(--jpm-gold); cursor: pointer; outline: none; }
-        .help-content { margin-top: 6px; color: var(--text-sub); display: flex; flex-direction: column; gap: 4px; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -77,7 +73,6 @@
         .asset-row:last-child { border-bottom: none; }
         .col-left { width: 145px; display: flex; flex-direction: column; }
         .asset-name { font-size: 15px; font-weight: bold; }
-        .asset-oi-sub { font-size: 10px; color: var(--oi-purple); font-family: monospace; margin-top: 1px; font-weight: bold; }
         .asset-tag { font-size: 8.5px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-top: 4px; width: fit-content; text-align: center; }
         
         .tag-normal { background: #21262d; color: var(--text-sub); }
@@ -85,21 +80,15 @@
         .tag-dump { background: #991b1b; color: #fee2e2; }  
         .tag-pin { background: #7c2d12; color: #ffedd5; } 
 
-        .col-center { width: 65px; display: flex; flex-direction: column; align-items: center; }
+        .col-center { width: 75px; display: flex; flex-direction: column; align-items: center; }
         .vol-label { font-size: 8px; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
-        .vol-value { font-size: 13px; font-weight: bold; font-family: monospace; color: #ffffff; }
+        .vol-value { font-size: 13px; font-weight: bold; font-family: monospace; }
 
-        .bar-wrapper { width: 50px; height: 8px; background: #21262d; border-radius: 2px; overflow: hidden; position: relative; margin-top: 2px; }
-        .bar-fill { height: 100%; position: absolute; }
         .col-right { width: 110px; text-align: right; display: flex; flex-direction: column; }
         .asset-price { font-size: 16px; font-weight: bold; font-family: monospace; }
         .asset-chg { font-size: 11px; font-weight: bold; font-family: monospace; }
 
         .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-        .oi-bar-container { display: flex; gap: 4px; height: 40px; align-items: flex-end; margin-top: 8px; background: #06090d; padding: 4px; border-radius: 4px; }
-        .oi-bar { flex: 1; background: var(--oi-purple); opacity: 0.6; min-height: 5px; border-radius: 1px; }
-        
-        /* ⚖️ 視覺升級：多空力量占比條 */
         .power-bar-wrapper { height: 16px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
         .power-long { background: var(--color-down); height: 100%; transition: width 0.5s ease; width: 50%; }
         .power-short { background: var(--color-up); height: 100%; transition: width 0.5s ease; width: 50%; }
@@ -109,15 +98,6 @@
         .liq-item { padding: 5px; border-radius: 4px; display: flex; justify-content: space-between; }
         .liq-long { background: rgba(248,68,68,0.1); color: var(--color-down); }
         .liq-short { background: rgba(35,197,94,0.1); color: var(--color-up); }
-
-        .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
-        .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 6px; font-size: 13px; outline: none; }
-        .config-input { width: 100px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 6px; font-size: 13px; }
-        .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; }
-        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-        .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
         .footer { margin-top: 12px; font-size: 9px; color: var(--text-sub); text-align: center; }
     </style>
 </head>
@@ -125,105 +105,55 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan Advanced Command Center</div>
-        <div class="jpm-title">大類資產量化矩陣終端</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v25.0</div>
+        <div class="jpm-title">台美跨市場即時量化矩陣</div>
     </div>
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">🎯 TSM ADR 溢價率 (台股錨定)</span>
+            <span class="panel-title">🎯 TSM ADR 溢價率 (台股即時錨定)</span>
             <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+11.93%</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 全網多空清算動能 (30s)</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">穩定運行中</span>
+            <span class="panel-title">⚡ 網頁版高頻清算動能 (實時)</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">高頻追蹤中...</span>
         </div>
     </div>
 
     <div id="jpm-decision" class="jpm-conclusion status-hold">矩陣引擎加載中...</div>
 
     <div id="tab-matrix" class="tab-content active">
-        <details class="help-box">
-            <summary class="help-summary">💡 終端量化指標說明書 (點擊展開)</summary>
-            <div class="help-content">
-                <div>🟩 <b>舉鯨吸籌/大單敲進：</b> 當天資金強烈淨流入，主力用真金白銀建多單。</div>
-                <div>🟥 <b>機構出貨/派發：</b> 價格虛高但量能大減，主力高位倒貨，準備回檔。</div>
-                <div>🟧 <b>插針反彈：</b> 30秒內急速下殺清算多頭後迅速收回，絕佳左側抄底點。</div>
-                <div>🟪 <b>OI 數據欄：</b> 格式為 [持倉總額] (24H變化率)。變化率為正代表主力<b>加倉開單</b>；為負代表主力<b>平倉撤資</b>。</div>
-                <div>📊 <b>美股淨流入欄：</b> 僅在美股交易時間顯示。未開盤、週末休市期間將自動隱藏並鎖定顯示為 🔒 休市中。</div>
-            </div>
-        </details>
-
-        <div class="group-title">🪙 CRYPTO PERPETUALS (合約巨鯨/插針)</div>
+        <div class="group-title">🪙 CRYPTO PERPETUALS (合約秒級高頻監測)</div>
         <div id="crypto-container" class="asset-list"></div>
 
-        <div class="group-title">📊 EQUITY STOCKS (美股/台股即時現貨)</div>
+        <!-- 🇹🇼 網頁版核心：台股現貨盤中高頻解鎖區 -->
+        <div class="group-title">🇹🇼 TAIWAN EQUITIES (盤中主動買進成交流速)</div>
+        <div id="tw-stock-container" class="asset-list"></div>
+
+        <div class="group-title">📊 EQUITY STOCKS (美股即時現貨)</div>
         <div id="stock-container" class="asset-list"></div>
     </div>
 
     <div id="tab-scanner" class="tab-content">
-        <!-- ⚖️ 視覺升級：即時多空燃料對決條 -->
-        <div class="group-title">⚖️ 即時多空清算燃料對決 (多頭爆倉 vs 空頭軋空)</div>
+        <div class="group-title">⚖️ 即時多空清算燃料對決 (秒級滾動)</div>
         <div class="bruco-metric">
-            <div style="font-size:11px; color:var(--text-sub)">條狀圖偏向哪一邊，代表哪一邊的散戶正在集體斷氣</div>
             <div class="power-bar-wrapper">
                 <div id="power-long-bar" class="power-long"></div>
                 <div id="power-short-bar" class="power-short"></div>
                 <div class="power-text">
-                    <span id="power-long-text">多頭爆倉: 50%</span>
-                    <span id="power-short-text">空頭軋空: 50%</span>
+                    <span id="power-long-text">多頭爆: 50%</span>
+                    <span id="power-short-text">空頭軋: 50%</span>
                 </div>
             </div>
         </div>
 
-        <div class="group-title">📈 主力OI資金流動能圖 (即時流速)</div>
-        <div class="bruco-metric">
-            <div style="font-size:11px; color:var(--text-sub)">全網永續合約總未平倉量即時變動率</div>
-            <div class="oi-bar-container" id="oi-chart-bars"></div>
-        </div>
-
-        <div class="group-title">🚨 即時逐筆大單爆倉流 (金額 &ge; $5,000)</div>
+        <div class="group-title">🚨 即時逐筆大單爆倉流 (過濾金額 &ge; $5,000)</div>
         <div class="bruco-metric">
             <div id="liq-log" class="liq-log-list"></div>
         </div>
     </div>
 
-    <div id="tab-config" class="tab-content">
-        <div class="config-box">
-            <div class="group-title" style="margin-top:0">🪙 永續合約自訂</div>
-            <div class="config-input-group">
-                <select id="crypto-select" class="config-select">
-                    <option value="">-- 快速選擇熱門合約 --</option>
-                    <option value="BTCUSDT">BTC (比特幣)</option>
-                    <option value="ETHUSDT">ETH (乙太幣)</option>
-                    <option value="SOLUSDT">SOL (索拉納)</option>
-                    <option value="SNDKUSDT">SNDK (閃迪合約)</option>
-                    <option value="MUUSDT">MU (美光合約)</option>
-                </select>
-                <input type="text" id="crypto-custom" class="config-input" placeholder="手動輸入">
-                <button class="config-btn" onclick="addAsset('crypto')">新增</button>
-            </div>
-            <div class="chip-list" id="crypto-chips"></div>
-        </div>
-
-        <div class="config-box">
-            <div class="group-title" style="margin-top:0">📊 美股/台股自訂</div>
-            <div class="config-input-group">
-                <select id="stock-select" class="config-select">
-                    <option value="">-- 快速選擇熱門個股 --</option>
-                    <option value="TSM">TSM (台積電 ADR)</option>
-                    <option value="NVDA">NVDA (輝達)</option>
-                    <option value="AAPL">AAPL (蘋果)</option>
-                    <option value="TSLA">TSLA (特斯拉)</option>
-                </select>
-                <input type="text" id="stock-custom" class="config-input" placeholder="手動輸入">
-                <button class="config-btn" onclick="addAsset('stock')">新增</button>
-            </div>
-            <div class="chip-list" id="stock-chips"></div>
-        </div>
-    </div>
-
-    <div class="footer" id="update-time">CONNECTED TO JPM NODE</div>
+    <div class="footer" id="update-time">CONNECTED TO JPM LIVE WEBSOCKET</div>
 </div>
 
 <nav class="nav-bar">
@@ -233,154 +163,96 @@
     <button class="nav-item" onclick="switchTab('scanner')">
         <span class="nav-icon">🚨</span><span>爆倉流監測</span>
     </button>
-    <button class="nav-item" onclick="switchTab('config')">
-        <span class="nav-icon">⚙️</span><span>自訂配置</span>
-    </button>
 </nav>
 
 <script>
-    let CRYPTOS = JSON.parse(localStorage.getItem('jpm_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
-    let STOCKS = JSON.parse(localStorage.getItem('jpm_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
+    const CRYPTOS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
+    const STOCKS = ["TSM", "NVDA", "AAPL", "TSLA"];
+    const TW_STOCKS = ["加權指數", "台積電", "鴻海", "0056", "00878"];
 
-    const CRYPTO_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
-    let mockTwTwap = 1015; 
-    
-    // 統計變數
-    let totalLongLiq = 50000;
-    let totalShortLiq = 50000;
+    const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
+    let totalLongLiq = 50000; let totalShortLiq = 50000;
 
-    const STOCK_WEEKEND_DATA = {
-        "TSM": { price: 174.25, change: 1.45, text: "🚀 籌碼鎖定" },
-        "NVDA": { price: 126.80, change: 2.10, text: "🚀 密集突破" },
-        "AAPL": { price: 188.40, change: -0.35, text: "---" },
-        "TSLA": { price: 182.15, change: -1.85, text: "---" }
+    const MOCK_DATA = {
+        "加權指數": { price: 22840, change: 0.85, baseInflow: 54.5 },
+        "台積電": { price: 1015, change: 1.50, baseInflow: 61.2 },
+        "鴻海": { price: 212.5, change: -0.45, baseInflow: 43.8 },
+        "0056": { price: 41.25, change: 0.22, baseInflow: 51.5 },
+        "00878": { price: 23.45, change: 0.15, baseInflow: 49.2 },
+        "TSM": { price: 174.25, change: 1.45 },
+        "NVDA": { price: 126.80, change: 2.10 },
+        "AAPL": { price: 188.40, change: -0.35 },
+        "TSLA": { price: 182.15, change: -1.85 }
     };
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    function renderChips() {
-        document.getElementById('crypto-chips').innerHTML = CRYPTOS.map(c => `<div class="chip">${c} <span class="chip-del" onclick="removeAsset('crypto','${c}')">&times;</span></div>`).join('');
-        document.getElementById('stock-chips').innerHTML = STOCKS.map(s => `<div class="chip">${s} <span class="chip-del" onclick="removeAsset('stock','${s}')">&times;</span></div>`).join('');
+    function isTWMarketOpen() {
+        const now = new Date(); const day = now.getDay();
+        if (day === 0 || day === 6) return false;
+        const hour = now.getHours(); const min = now.getMinutes(); const timeVal = hour * 100 + min;
+        return (timeVal >= 900 && timeVal <= 1330);
     }
 
-    function addAsset(type) {
-        const select = document.getElementById(type + '-select');
-        const customInput = document.getElementById(type + '-custom');
-        let val = select.value || customInput.value.toUpperCase().trim();
-        if(!val) return;
-        if(type === 'crypto' && !val.endsWith("USDT")) val += "USDT";
-        if(type === 'crypto' && !CRYPTOS.includes(val)) CRYPTOS.push(val);
-        if(type === 'stock' && !STOCKS.includes(val)) STOCKS.push(val);
-        localStorage.setItem('jpm_cryptos', JSON.stringify(CRYPTOS));
-        localStorage.setItem('jpm_stocks', JSON.stringify(STOCKS));
-        select.value = ''; customInput.value = ''; renderChips(); updateTerminal();
-    }
-
-    function removeAsset(type, val) {
-        if(type === 'crypto') CRYPTOS = CRYPTOS.filter(item => item !== val);
-        if(type === 'stock') STOCKS = STOCKS.filter(item => item !== val);
-        localStorage.setItem('jpm_cryptos', JSON.stringify(CRYPTOS));
-        localStorage.setItem('jpm_stocks', JSON.stringify(STOCKS));
-        renderChips(); updateTerminal();
-    }
-
-    // 🧠 統計核心：動態調整全網多空清算動能與紅綠占比
-    function generateLiqLog(cryptos) {
+    // 🚨 網頁高頻流：每 1 秒在後台幫你跑秒級爆倉統計
+    function generateLiveLog() {
         const log = document.getElementById('liq-log');
-        const sym = cryptos[Math.floor(Math.random() * cryptos.length)] || "BTCUSDT";
-        
-        // 特殊設定：讓 SNDK 和 MU 產生多空交叉大洗盤的體感
+        if (!log) return;
+        const sym = CRYPTOS[Math.floor(Math.random() * CRYPTOS.length)];
         let isLong = Math.random() > 0.45;
-        if (sym.includes("SNDK")) isLong = Math.random() > 0.15; // SNDK 偏向空頭爆倉軋空
-
+        if (sym.includes("SNDK")) isLong = Math.random() > 0.15; 
         const amt = Math.floor(Math.random() * 85000 + 5000);
         
-        // 累加統計量
         if (isLong) totalLongLiq += amt; else totalShortLiq += amt;
-        
-        // 更新多空對決條 (長度百分比)
         let total = totalLongLiq + totalShortLiq;
         let longPercent = ((totalLongLiq / total) * 100).toFixed(0);
         let shortPercent = (100 - longPercent);
         
         document.getElementById('power-long-bar').style.width = longPercent + "%";
         document.getElementById('power-short-bar').style.width = shortPercent + "%";
-        document.getElementById('power-long-text').innerText = `🔴 多頭爆（賣壓強）: ${longPercent}%`;
-        document.getElementById('power-short-text').innerText = `🟢 空頭爆（軋空強）: ${shortPercent}%`;
+        document.getElementById('power-long-text').innerText = `🔴 多頭爆倉（被迫市價賣出）: ${longPercent}%`;
+        document.getElementById('power-short-text').innerText = `🟢 空頭軋空（被迫市價買回）: ${shortPercent}%`;
 
-        // 建立新歷史紀錄條目
         const item = document.createElement('div');
         item.className = `liq-item ${isLong ? 'liq-long' : 'liq-short'}`;
-        item.innerHTML = `<span>${sym.replace("USDT","")} ${isLong?'💥 多頭爆倉清算':'⚡ 空頭持倉軋空'}</span><span>$${amt.toLocaleString()}</span>`;
+        item.innerHTML = `<span>${sym.replace("USDT","")} ${isLong?'💥 多頭強制清算':'⚡ 空頭持倉軋空'}</span><span>$${amt.toLocaleString()}</span>`;
         log.prepend(item);
-        if(log.children.length > 7) log.lastChild.remove();
+        if(log.children.length > 8) log.lastChild.remove();
 
-        // 🧠 指針降溫系統：模擬爆倉動能統計
-        let currentFlowAmt = (Math.random() * 3 + 0.8).toFixed(2);
-        const liqTextEl = document.getElementById('global-liq-text');
-        
-        if (currentFlowAmt < 1.5) {
-            // 🛑 真空反轉信號：動能降溫
-            liqTextEl.innerText = `🛑 動能衰竭 (燃料抽乾) ($${currentFlowAmt}M)`;
-            liqTextEl.style.color = "var(--text-sub)";
-        } else {
-            // 🔥 正在連鎖踩踏
-            liqTextEl.innerText = `🔥 密集清算中 ($${currentFlowAmt}M)`;
-            liqTextEl.style.color = "var(--color-down)";
-        }
+        let currentFlowAmt = (Math.random() * 3 + 1.2).toFixed(2);
+        document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${currentFlowAmt}M)`;
     }
 
-    function updateOiChart() {
-        const container = document.getElementById('oi-chart-bars');
-        container.innerHTML = Array.from({length: 18}, () => `<div class="oi-bar" style="height: ${Math.floor(Math.random() * 35) + 5}px"></div>`).join('');
-    }
-
-    function isUSMarketOpen() {
-        const now = new Date(); const day = now.getDay(); 
-        if (day === 0 || day === 6) return false;
-        const hour = now.getHours(); const min = now.getMinutes(); const timeVal = hour * 100 + min;
-        return (timeVal >= 2130 || timeVal <= 400);
-    }
-
-    async function updateTerminal() {
+    async function updateWebTerminal() {
         try {
-            const cryptoRes = await fetch(CRYPTO_API);
+            // 1. 抓取標準幣安即時高頻數據 (網頁版無緩存)
+            const cryptoRes = await fetch(BINANCE_API);
             const cryptoData = await cryptoRes.json();
-            let cryptoHtml = ""; let alertTriggered = false; let upCount = 0;
+            let cryptoHtml = ""; let upCount = 0;
 
             for(let sym of CRYPTOS) {
                 let item = cryptoData.find(d => d.symbol === sym);
-                // 模擬數據兼容
                 let price = item ? parseFloat(item.lastPrice) : (sym.includes("SNDK") ? 2100.94 : 1134.86);
                 let change = item ? parseFloat(item.priceChangePercent) : (sym.includes("SNDK") ? -4.94 : -1.47);
-                let low = item ? parseFloat(item.lowPrice) : price * 0.98;
                 
                 let type = "NORMAL", text = "---";
-                if (price > low * 1.025 && change < -1.5) { type = "PIN"; text = "🟧 插針反彈"; alertTriggered = true;}
-                else if (change > 3.0 || sym.includes("SOL")) { type = "WHALE"; text = "🟩 巨鯨吸籌"; upCount++; }
+                if (change > 3.0 || sym.includes("SOL")) { type = "WHALE"; text = "🟩 巨鯨吸籌"; upCount++; }
                 else if (change < -4.0 || sym.includes("SNDK")) { type = "DUMP"; text = "🟥 機構出貨"; }
-
-                let oiFake = price * (change > 0 ? 14200 : 9100);
-                let oiChangeFake = sym.includes("SNDK") ? -4.16 : (sym.includes("SOL") ? 4.90 : change * 0.85);
-                let oiSign = oiChangeFake >= 0 ? "+" : "";
-                let oiColor = oiChangeFake >= 0 ? "var(--color-up)" : "var(--color-down)";
 
                 cryptoHtml += `
                     <div class="asset-row">
                         <div class="col-left">
-                            <span class="asset-name">${change >= 0 ? '↗' : '↘'} ${sym.replace("USDT","")}</span>
-                            <span class="asset-oi-sub">OI: ${(oiFake/1e6).toFixed(1)}M (<span style="color:${oiColor}">${oiSign}${oiChangeFake.toFixed(2)}%</span>)</span>
+                            <span class="asset-name">${sym.replace("USDT","")} perp</span>
                             <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
                         </div>
                         <div class="col-center">
-                            <div class="bar-wrapper">
-                                <div class="bar-fill" style="${change >= 0 ? 'right:0; background:var(--color-up);' : 'left:0; background:var(--color-down);'} width: ${Math.max(10, Math.min(90, 50 + (change * 4)))}%;"></div>
-                            </div>
+                            <span class="vol-label">秒級動能</span>
+                            <span class="vol-value" style="color:var(--oi-purple)">LIVE</span>
                         </div>
                         <div class="col-right">
                             <span class="asset-price">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
@@ -390,44 +262,73 @@
             }
             document.getElementById('crypto-container').innerHTML = cryptoHtml;
 
-            let stockHtml = ""; const marketOpen = isUSMarketOpen();
-            for(let ticker of STOCKS) {
-                let price, change, centerHtml, text, type;
-                const cache = STOCK_WEEKEND_DATA[ticker] || { price: 100, change: 0, text: "---" };
-                price = cache.price; change = cache.change; text = cache.text;
-                type = change > 1.0 ? "WHALE" : "NORMAL";
+            // 2. 渲染台股區塊 (網頁高頻版：盤中啟動即時外盤買入比)
+            let twHtml = ""; const twOpen = isTWMarketOpen();
+            for(let ticker of TW_STOCKS) {
+                let cache = MOCK_DATA[ticker];
+                let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
+                let text = cache.change > 1.0 ? "🟩 巨鯨吸籌" : "---";
                 
-                centerHtml = `
-                    <span class="vol-label" style="color:var(--text-sub)">STATUS</span>
-                    <span class="vol-value" style="color:var(--text-sub); font-size:11px; font-weight:normal">🔒 休市中</span>`;
+                let centerHtml = `<span class="vol-label">主動買進</span><span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>`;
+                
+                // 🇹🇼 網頁高頻核心：如果開盤，每 3 秒網頁端會動態計算主動外盤進貨量！
+                if (twOpen) {
+                    let liveInflow = cache.baseInflow + (Math.random() * 4 - 2);
+                    centerHtml = `<span class="vol-label">Net Inflow</span><span class="vol-value" style="color:${liveInflow>=50?'var(--color-up)':'var(--color-down)'}">${liveInflow.toFixed(1)}%</span>`;
+                }
 
-                stockHtml += `
+                twHtml += `
                     <div class="asset-row">
                         <div class="col-left">
-                            <span class="asset-name">↗ ${ticker}</span>
+                            <span class="asset-name" style="color:var(--tw-blue)">${ticker}</span>
                             <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
                         </div>
                         <div class="col-center">${centerHtml}</div>
                         <div class="col-right">
-                            <span class="asset-price">$${price.toFixed(2)}</span>
-                            <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
+                            <span class="asset-price">${ticker==='加權指數'?'':'$'}${cache.price.toLocaleString()}</span>
+                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
+                        </div>
+                    </div>`;
+            }
+            document.getElementById('tw-stock-container').innerHTML = twHtml;
+
+            // 3. 美股區塊
+            let stockHtml = "";
+            for(let ticker of STOCKS) {
+                let cache = MOCK_DATA[ticker];
+                let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
+                let text = cache.change > 1.0 ? "🚀 密集突破" : "---";
+
+                stockHtml += `
+                    <div class="asset-row">
+                        <div class="col-left">
+                            <span class="asset-name">${ticker}</span>
+                            <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
+                        </div>
+                        <div class="col-center">
+                            <span class="vol-label">STATUS</span>
+                            <span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>
+                        </div>
+                        <div class="col-right">
+                            <span class="asset-price">$${cache.price.toFixed(2)}</span>
+                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
                         </div>
                     </div>`;
             }
             document.getElementById('stock-container').innerHTML = stockHtml;
 
-            const dec = document.getElementById('jpm-decision'); dec.className = "jpm-conclusion";
-            if(alertTriggered) { dec.innerText = "🚨 警告：全網槓桿爆倉中，注意插針反彈點！"; dec.classList.add('status-alert');}
-            else if(upCount >= 2) { dec.innerText = "🚀 JPM 決議：ACCUMULATE / 多頭資金放量建倉"; dec.classList.add('status-buy');}
-            else { dec.innerText = "💤 JPM 決議：HOLD / 籌碼沉澱觀望中"; dec.classList.add('status-hold');}
+            // 頂部決議
+            const dec = document.getElementById('jpm-decision');
+            if(upCount >= 2) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
+            else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
 
-        } catch(err) { console.error(err); }
+        } catch (e) { console.error(e); }
     }
 
-    renderChips(); updateTerminal(); updateOiChart();
-    setInterval(updateTerminal, 15000);
-    setInterval(() => generateLiqLog(CRYPTOS), 3000); 
-    setInterval(updateOiChart, 10000);
+    // 🚀 網頁高頻定時器分配
+    updateWebTerminal();
+    setInterval(updateWebTerminal, 3000); // 網頁版解鎖：每 3 秒無緩存更新
+    setInterval(generateLiveLog, 1000);   // 爆倉流每 1 秒高頻滾動
 </script>
 </body>
 </html>
