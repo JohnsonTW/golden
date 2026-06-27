@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v27.3</title>
+    <title>JPM Command Center v27.4</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -113,7 +113,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.3</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.4</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
     </div>
 
@@ -237,7 +237,12 @@
 </nav>
 
 <script>
-    // 🏛️ 基礎規格核心字典（強制對齊錨定）
+    // 🧠 物理清空除錯：首次執行時如果偵測到舊結構，直接強制 Flush 清空硬碟緩存
+    if (!localStorage.getItem('web_v274_clear')) {
+        localStorage.clear();
+        localStorage.setItem('web_v274_clear', 'true');
+    }
+
     const BASE_DICT = {
         "加權指數": { id: "加權指數", name: "加權指數", price: 22840, baseInflow: 54.5 },
         "^TWII": { id: "加權指數", name: "加權指數", price: 22840, baseInflow: 54.5 },
@@ -255,18 +260,11 @@
 
     let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
     let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
-    
-    // 🔄 核心修復：強制清除 localStorage 裡可能殘留的舊數字 Key，一律收斂轉為中文標準名稱
-    let rawTw = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
-    let TW_STOCKS = rawTw.map(item => BASE_DICT[item] ? BASE_DICT[item].id : item);
-    // 去重
-    TW_STOCKS = [...new Set(TW_STOCKS)];
-    localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
+    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
 
     const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
     let totalLongLiq = 50000; let totalShortLiq = 50000;
 
-    // 初始化狀態快取
     let MASTER_DATA = {
         "加權指數": { name: "加權指數", price: 22840, change: 0.85, baseInflow: 54.5 },
         "台積電": { name: "台積電", price: 1015, change: 1.50, baseInflow: 61.2 },
@@ -304,13 +302,11 @@
             if(!CRYPTOS.includes(val)) CRYPTOS.push(val);
             localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS));
         } else if(type === 'taiwan') {
-            // 如果輸入的是代號，強制對齊中文標準 ID
             let targetId = BASE_DICT[val] ? BASE_DICT[val].id : val;
             if(!TW_STOCKS.includes(targetId)) TW_STOCKS.push(targetId);
-            
             if(!MASTER_DATA[targetId]) {
                 let base = BASE_DICT[val] || { price: 100, baseInflow: 50 };
-                MASTER_DATA[targetId] = { name: targetId, price: base.price, change: (Math.random()*2-1), baseInflow: base.baseInflow };
+                MASTER_DATA[targetId] = { name: targetId, price: base.price, change: 0, baseInflow: base.baseInflow };
             }
             localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
         } else if(type === 'stock') {
@@ -372,12 +368,11 @@
                     let price = item ? parseFloat(item.lastPrice) : (MASTER_DATA[sym]?.price || 0);
                     let change = item ? parseFloat(item.priceChangePercent) : (MASTER_DATA[sym]?.change || 0);
                     let type = change > 3.0 ? "WHALE" : "NORMAL";
-                    let text = change > 3.0 ? "🟩 巨鯨吸籌" : "---";
                     if(change > 3.0) upCount++;
 
                     cryptoHtml += `
                         <div class="asset-row">
-                            <div class="col-left"><span class="asset-name">${sym.replace("USDT","")} perp</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
+                            <div class="col-left"><span class="asset-name">${sym.replace("USDT","")} perp</span><span class="asset-tag tag-${type.toLowerCase()}">${change>3?'🟩 巨鯨吸籌':'---'}</span></div>
                             <div class="col-center"><span class="vol-label">秒級動能</span><span class="vol-value" style="color:var(--oi-purple)">LIVE</span></div>
                             <div class="col-right">
                                 <span class="asset-price">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
@@ -390,7 +385,6 @@
 
             let twHtml = ""; const twOpen = isTWMarketOpen();
             for(let key of TW_STOCKS) {
-                // 核心修復：無論如何，取出來渲染的一定要是標準化快取
                 let cache = MASTER_DATA[key];
                 if(!cache) {
                     let base = BASE_DICT[key] || { name: key, price: 150, baseInflow: 50 };
@@ -399,12 +393,11 @@
                 }
 
                 if (twOpen) { 
-                    cache.price += (Math.random() * 2 - 1); 
-                    cache.change += (Math.random() * 0.1 - 0.05); 
+                    cache.price += (Math.random() * 0.8 - 0.4); 
+                    cache.change += (Math.random() * 0.04 - 0.02); 
                 }
                 
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
-                let text = cache.change > 1.0 ? "🟩 巨鯨吸籌" : "---";
                 let centerHtml = `<span class="vol-label">主動買進</span><span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>`;
                 if (twOpen) {
                     let liveInflow = cache.baseInflow + (Math.random() * 4 - 2);
@@ -412,7 +405,7 @@
                 }
                 twHtml += `
                     <div class="asset-row">
-                        <div class="col-left"><span class="asset-name" style="color:var(--tw-blue)">${cache.name}</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
+                        <div class="col-left"><span class="asset-name" style="color:var(--tw-blue)">${cache.name}</span><span class="asset-tag tag-${type.toLowerCase()}">${cache.change>1?'🟩 巨鯨吸籌':'---'}</span></div>
                         <div class="col-center">${centerHtml}</div>
                         <div class="col-right">
                             <span class="asset-price">${cache.name==='加權指數'?'':'$'}${cache.price.toLocaleString(undefined, {maximumFractionDigits:1, minimumFractionDigits:1})}</span>
