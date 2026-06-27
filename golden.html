@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v27.2</title>
+    <title>JPM Command Center v27.3</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -113,7 +113,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.2</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.3</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
     </div>
 
@@ -237,41 +237,48 @@
 </nav>
 
 <script>
+    // 🏛️ 基礎規格核心字典（強制對齊錨定）
+    const BASE_DICT = {
+        "加權指數": { id: "加權指數", name: "加權指數", price: 22840, baseInflow: 54.5 },
+        "^TWII": { id: "加權指數", name: "加權指數", price: 22840, baseInflow: 54.5 },
+        "台積電": { id: "台積電", name: "台積電", price: 1015, baseInflow: 61.2 },
+        "2330": { id: "台積電", name: "台積電", price: 1015, baseInflow: 61.2 },
+        "鴻海": { id: "鴻海", name: "鴻海", price: 212.5, baseInflow: 43.8 },
+        "2317": { id: "鴻海", name: "鴻海", price: 212.5, baseInflow: 43.8 },
+        "聯電": { id: "聯電", name: "聯電", price: 49.50, baseInflow: 47.1 },
+        "2303": { id: "聯電", name: "聯電", price: 49.50, baseInflow: 47.1 },
+        "聯發科": { id: "聯發科", name: "聯發科", price: 1385, baseInflow: 58.4 },
+        "2454": { id: "聯發科", name: "聯發科", price: 1385, baseInflow: 58.4 },
+        "南電": { id: "南電", name: "南電", price: 152.0, baseInflow: 41.2 },
+        "8046": { id: "南電", name: "南電", price: 152.0, baseInflow: 41.2 }
+    };
+
     let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
-    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
     let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
+    
+    // 🔄 核心修復：強制清除 localStorage 裡可能殘留的舊數字 Key，一律收斂轉為中文標準名稱
+    let rawTw = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
+    let TW_STOCKS = rawTw.map(item => BASE_DICT[item] ? BASE_DICT[item].id : item);
+    // 去重
+    TW_STOCKS = [...new Set(TW_STOCKS)];
+    localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
 
     const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
     let totalLongLiq = 50000; let totalShortLiq = 50000;
 
-    // 🏛️ 基礎精確歷史數據字典 (修復代號與名稱不對齊的對照 Bug)
-    const BASE_DICT = {
-        "加權指數": { name: "加權指數", price: 22840, baseInflow: 54.5 },
-        "^TWII": { name: "加權指數", price: 22840, baseInflow: 54.5 },
-        "台積電": { name: "台積電", price: 1015, baseInflow: 61.2 },
-        "2330": { name: "台積電", price: 1015, baseInflow: 61.2 },
-        "鴻海": { name: "鴻海", price: 212.5, baseInflow: 43.8 },
-        "2317": { name: "鴻海", price: 212.5, baseInflow: 43.8 },
-        "聯電": { name: "聯電", price: 49.50, baseInflow: 47.1 },
-        "2303": { name: "聯電", price: 49.50, baseInflow: 47.1 },
-        "聯發科": { name: "聯發科", price: 1385, baseInflow: 58.4 },
-        "2454": { name: "聯發科", price: 1385, baseInflow: 58.4 },
-        "南電": { name: "南電", price: 152.0, baseInflow: 41.2 },
-        "8046": { name: "南電", price: 152.0, baseInflow: 41.2 }
+    // 初始化狀態快取
+    let MASTER_DATA = {
+        "加權指數": { name: "加權指數", price: 22840, change: 0.85, baseInflow: 54.5 },
+        "台積電": { name: "台積電", price: 1015, change: 1.50, baseInflow: 61.2 },
+        "鴻海": { name: "鴻海", price: 212.5, change: -0.45, baseInflow: 43.8 },
+        "聯電": { name: "聯電", price: 49.50, change: -0.20, baseInflow: 47.1 },
+        "聯發科": { name: "聯發科", price: 1385, change: 2.15, baseInflow: 58.4 },
+        "南電": { name: "南電", price: 152.0, change: -1.30, baseInflow: 41.2 },
+        "TSM": { name: "TSM", price: 174.25, change: 1.45 },
+        "NVDA": { name: "NVDA", price: 126.80, change: 2.10 },
+        "AAPL": { name: "AAPL", price: 188.40, change: -0.35 },
+        "TSLA": { name: "TSLA", price: 182.15, change: -1.85 }
     };
-
-    let MASTER_DATA = {};
-    function initMasterData() {
-        Object.keys(BASE_DICT).forEach(k => {
-            MASTER_DATA[k] = { 
-                name: BASE_DICT[k].name,
-                price: BASE_DICT[k].price, 
-                change: (Math.random() * 3 - 1.2), 
-                baseInflow: BASE_DICT[k].baseInflow 
-            };
-        });
-    }
-    initMasterData();
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -297,18 +304,19 @@
             if(!CRYPTOS.includes(val)) CRYPTOS.push(val);
             localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS));
         } else if(type === 'taiwan') {
-            let targetName = val;
-            if (BASE_DICT[val]) { targetName = BASE_DICT[val].name; }
-            if(!TW_STOCKS.includes(targetName)) TW_STOCKS.push(targetName);
+            // 如果輸入的是代號，強制對齊中文標準 ID
+            let targetId = BASE_DICT[val] ? BASE_DICT[val].id : val;
+            if(!TW_STOCKS.includes(targetId)) TW_STOCKS.push(targetId);
             
-            if(!MASTER_DATA[targetName]) {
-                MASTER_DATA[targetName] = { name: targetName, price: BASE_DICT[val]?.price || (100 + Math.floor(Math.random()*200)), change: (Math.random()*2-1), baseInflow: 50 };
+            if(!MASTER_DATA[targetId]) {
+                let base = BASE_DICT[val] || { price: 100, baseInflow: 50 };
+                MASTER_DATA[targetId] = { name: targetId, price: base.price, change: (Math.random()*2-1), baseInflow: base.baseInflow };
             }
             localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
         } else if(type === 'stock') {
             val = val.toUpperCase();
             if(!STOCKS.includes(val)) STOCKS.push(val);
-            if(!MASTER_DATA[val]) MASTER_DATA[val] = { name: val, price: val==='TSM'?174.25:(50 + Math.floor(Math.random()*150)), change: (Math.random()*2-1) };
+            if(!MASTER_DATA[val]) MASTER_DATA[val] = { name: val, price: 100, change: 0 };
             localStorage.setItem('web_stocks', JSON.stringify(STOCKS));
         }
         select.value = ''; custom.value = ''; renderChips(); updateWebTerminal();
@@ -381,10 +389,19 @@
             document.getElementById('crypto-container').innerHTML = cryptoHtml || '<div style="padding:20px;color:var(--text-sub);text-align:center">請至設置頁面新增合約</div>';
 
             let twHtml = ""; const twOpen = isTWMarketOpen();
-            for(let ticker of TW_STOCKS) {
-                let cache = MASTER_DATA[ticker] || { name: ticker, price: 150, change: 0, baseInflow: 50 };
-                // 波動模擬
-                if (twOpen) { cache.price += (Math.random() * 2 - 1); cache.change += (Math.random() * 0.1 - 0.05); }
+            for(let key of TW_STOCKS) {
+                // 核心修復：無論如何，取出來渲染的一定要是標準化快取
+                let cache = MASTER_DATA[key];
+                if(!cache) {
+                    let base = BASE_DICT[key] || { name: key, price: 150, baseInflow: 50 };
+                    MASTER_DATA[key] = { name: base.name, price: base.price, change: 0, baseInflow: base.baseInflow };
+                    cache = MASTER_DATA[key];
+                }
+
+                if (twOpen) { 
+                    cache.price += (Math.random() * 2 - 1); 
+                    cache.change += (Math.random() * 0.1 - 0.05); 
+                }
                 
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
                 let text = cache.change > 1.0 ? "🟩 巨鯨吸籌" : "---";
