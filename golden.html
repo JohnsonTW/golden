@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v26.0</title>
+    <title>JPM Command Center v27.0</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -24,7 +24,7 @@
             color: var(--text-title);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: calc(10px + env(safe-area-inset-top)) 12px 85px 12px;
+            padding: calc(10px + env(safe-area-inset-top)) 12px 90px 12px;
             -webkit-user-select: none;
         }
         .container { width: 100%; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
@@ -47,12 +47,10 @@
         .jpm-conclusion { margin-bottom: 10px; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
         .status-hold { background: #22272e; color: #cbd5e1; }
         .status-buy { background: #064e3b; color: #6ee7b7; }
-        .status-sell { background: #7f1d1d; color: #fca5a5; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* 📱 導覽列重新排版，完美容納四個分頁 */
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #161b22; border-top: 1px solid var(--border-color);
@@ -61,9 +59,9 @@
             z-index: 1000;
         }
         .nav-item {
-            color: var(--text-sub); font-size: 10px; font-weight: bold;
+            color: var(--text-sub); font-size: 9.5px; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; gap: 3px;
-            background: none; border: none; width: 25%;
+            background: none; border: none; width: 20%;
         }
         .nav-item.active { color: var(--jpm-gold); }
         .nav-icon { font-size: 15px; }
@@ -88,13 +86,22 @@
         .asset-price { font-size: 16px; font-weight: bold; font-family: monospace; }
         .asset-chg { font-size: 11px; font-weight: bold; font-family: monospace; }
 
+        /* ⚙️ 設置分頁排版樣式 */
+        .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
+        .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; }
+        .config-input { width: 120px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; }
+        .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; color: white; }
+        .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
+
         .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
         .power-bar-wrapper { height: 16px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
         .power-long { background: var(--color-down); height: 100%; width: 50%; }
         .power-short { background: var(--color-up); height: 100%; width: 50%; }
         .power-text { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 6px; box-sizing: border-box; font-size: 9px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; font-family: monospace;}
-
-        .liq-log-list { max-height: 320px; overflow-y: auto; font-family: monospace; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
+        .liq-log-list { max-height: 280px; overflow-y: auto; font-family: monospace; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
         .liq-item { padding: 6px; border-radius: 4px; display: flex; justify-content: space-between; }
         .liq-long { background: rgba(248,68,68,0.1); color: var(--color-down); }
         .liq-short { background: rgba(35,197,94,0.1); color: var(--color-up); }
@@ -104,7 +111,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Terminal v26.0</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.0</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
     </div>
 
@@ -114,15 +121,15 @@
             <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+11.93%</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 網頁端即時清算流速</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">追蹤中...</span>
+            <span class="panel-title">⚡ 網頁端實時清算流速</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">連線中...</span>
         </div>
     </div>
 
     <div id="jpm-decision" class="jpm-conclusion status-hold">JPM WEB: HOLD / 籌碼沉澱橫盤期</div>
 
     <div id="tab-crypto" class="tab-content active">
-        <div class="group-title">🪙 CRYPTO PERPETUALS (合約秒級高頻監測)</div>
+        <div class="group-title">🪙 CRYPTO PERPETUALS (合約高頻監測)</div>
         <div id="crypto-container" class="asset-list"></div>
     </div>
 
@@ -148,9 +155,62 @@
                 </div>
             </div>
         </div>
-        <div class="group-title">🚨 即時逐筆大單爆倉流 (金額 &ge; $5,000)</div>
+        <div class="group-title">🚨 即時逐筆大單爆倉流 (過濾 &ge; $5,000)</div>
         <div class="bruco-metric">
             <div id="liq-log" class="liq-log-list"></div>
+        </div>
+    </div>
+
+    <div id="tab-config" class="tab-content">
+        <div class="config-box">
+            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約自訂</div>
+            <div class="config-input-group">
+                <select id="crypto-select" class="config-select">
+                    <option value="">-- 快速選擇合約 --</option>
+                    <option value="BTCUSDT">BTC (比特幣)</option>
+                    <option value="ETHUSDT">ETH (乙太幣)</option>
+                    <option value="SOLUSDT">SOL (索拉納)</option>
+                    <option value="SNDKUSDT">SNDK (閃迪)</option>
+                    <option value="MUUSDT">MU (美光)</option>
+                </select>
+                <input type="text" id="crypto-custom" class="config-input" placeholder="自訂代號">
+                <button class="config-btn" onclick="addAsset('crypto')">新增</button>
+            </div>
+            <div class="chip-list" id="crypto-chips"></div>
+        </div>
+
+        <div class="config-box">
+            <div class="group-title" style="margin-top:0; color:var(--tw-blue)">🇹🇼 台股自訂</div>
+            <div class="config-input-group">
+                <select id="taiwan-select" class="config-select">
+                    <option value="">-- 快速選擇台股 --</option>
+                    <option value="加權指數">加權指數 (^TWII)</option>
+                    <option value="台積電">台積電 (2330)</option>
+                    <option value="鴻海">鴻海 (2317)</option>
+                    <option value="聯電">聯電 (2303)</option>
+                    <option value="聯發科">聯發科 (2454)</option>
+                    <option value="南電">南電 (8046)</option>
+                </select>
+                <input type="text" id="taiwan-custom" class="config-input" placeholder="代號或名稱">
+                <button class="config-btn" onclick="addAsset('taiwan')">新增</button>
+            </div>
+            <div class="chip-list" id="taiwan-chips"></div>
+        </div>
+
+        <div class="config-box">
+            <div class="group-title" style="margin-top:0">🇺🇸 美股自訂</div>
+            <div class="config-input-group">
+                <select id="stock-select" class="config-select">
+                    <option value="">-- 快速選擇美股 --</option>
+                    <option value="TSM">TSM (台積電 ADR)</option>
+                    <option value="NVDA">NVDA (輝達)</option>
+                    <option value="AAPL">AAPL (蘋果)</option>
+                    <option value="TSLA">TSLA (特斯拉)</option>
+                </select>
+                <input type="text" id="stock-custom" class="config-input" placeholder="自訂 Ticker">
+                <button class="config-btn" onclick="addAsset('stock')">新增</button>
+            </div>
+            <div class="chip-list" id="stock-chips"></div>
         </div>
     </div>
 
@@ -169,19 +229,21 @@
     <button class="nav-item" onclick="switchTab('scanner')">
         <span class="nav-icon">🚨</span><span>爆倉監測</span>
     </button>
+    <button class="nav-item" onclick="switchTab('config')">
+        <span class="nav-icon">⚙️</span><span>設置</span>
+    </button>
 </nav>
 
 <script>
-    const CRYPTOS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
-    const STOCKS = ["TSM", "NVDA", "AAPL", "TSLA"];
-    
-    // 🇹🇼 完美整合你指定的台股標的
-    const TW_STOCKS = ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電", "0056", "00878"];
+    // 🧠 網頁自適應快取記憶體模組
+    let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
+    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
+    let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
 
     const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
     let totalLongLiq = 50000; let totalShortLiq = 50000;
 
-    const MOCK_DATA = {
+    const MASTER_DATA = {
         "加權指數": { price: 22840, change: 0.85, baseInflow: 54.5 },
         "台積電": { price: 1015, change: 1.50, baseInflow: 61.2 },
         "鴻海": { price: 212.5, change: -0.45, baseInflow: 43.8 },
@@ -203,6 +265,42 @@
         event.currentTarget.classList.add('active');
     }
 
+    function renderChips() {
+        document.getElementById('crypto-chips').innerHTML = CRYPTOS.map(c => `<div class="chip">${c.replace("USDT","")} <span class="chip-del" onclick="removeAsset('crypto','${c}')">&times;</span></div>`).join('');
+        document.getElementById('taiwan-chips').innerHTML = TW_STOCKS.map(t => `<div class="chip">${t} <span class="chip-del" onclick="removeAsset('taiwan','${t}')">&times;</span></div>`).join('');
+        document.getElementById('stock-chips').innerHTML = STOCKS.map(s => `<div class="chip">${s} <span class="chip-del" onclick="removeAsset('stock','${s}')">&times;</span></div>`).join('');
+    }
+
+    function addAsset(type) {
+        const select = document.getElementById(type + '-select');
+        const custom = document.getElementById(type + '-custom');
+        let val = select.value || custom.value.trim();
+        if(!val) return;
+
+        if(type === 'crypto') {
+            val = val.toUpperCase(); if(!val.endsWith("USDT")) val += "USDT";
+            if(!CRYPTOS.includes(val)) CRYPTOS.push(val);
+            localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS));
+        } else if(type === 'taiwan') {
+            if(!TW_STOCKS.includes(val)) TW_STOCKS.push(val);
+            if(!MASTER_DATA[val]) MASTER_DATA[val] = { price: 100 + Math.floor(Math.random()*200), change: (Math.random()*4-2), baseInflow: 50 };
+            localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
+        } else if(type === 'stock') {
+            val = val.toUpperCase();
+            if(!STOCKS.includes(val)) STOCKS.push(val);
+            if(!MASTER_DATA[val]) MASTER_DATA[val] = { price: 50 + Math.floor(Math.random()*150), change: (Math.random()*4-2) };
+            localStorage.setItem('web_stocks', JSON.stringify(STOCKS));
+        }
+        select.value = ''; custom.value = ''; renderChips(); updateWebTerminal();
+    }
+
+    function removeAsset(type, val) {
+        if(type === 'crypto') { CRYPTOS = CRYPTOS.filter(i => i !== val); localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS)); }
+        if(type === 'taiwan') { TW_STOCKS = TW_STOCKS.filter(i => i !== val); localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS)); }
+        if(type === 'stock') { STOCKS = STOCKS.filter(i => i !== val); localStorage.setItem('web_stocks', JSON.stringify(STOCKS)); }
+        renderChips(); updateWebTerminal();
+    }
+
     function isTWMarketOpen() {
         const now = new Date(); const day = now.getDay();
         if (day === 0 || day === 6) return false;
@@ -212,10 +310,9 @@
 
     function generateLiveLog() {
         const log = document.getElementById('liq-log');
-        if (!log) return;
+        if (!log || CRYPTOS.length === 0) return;
         const sym = CRYPTOS[Math.floor(Math.random() * CRYPTOS.length)];
         let isLong = Math.random() > 0.45;
-        if (sym.includes("SNDK")) isLong = Math.random() > 0.15; 
         const amt = Math.floor(Math.random() * 85000 + 5000);
         
         if (isLong) totalLongLiq += amt; else totalShortLiq += amt;
@@ -233,63 +330,52 @@
         item.innerHTML = `<span>${sym.replace("USDT","")} ${isLong?'💥 多頭爆倉':'⚡ 空頭軋空'}</span><span>$${amt.toLocaleString()}</span>`;
         log.prepend(item);
         if(log.children.length > 8) log.lastChild.remove();
-
-        let currentFlowAmt = (Math.random() * 3 + 1.2).toFixed(2);
-        document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${currentFlowAmt}M)`;
+        document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${(Math.random() * 3 + 1.2).toFixed(2)}M)`;
     }
 
     async function updateWebTerminal() {
         try {
-            const cryptoRes = await fetch(BINANCE_API);
-            const cryptoData = await cryptoRes.json();
             let cryptoHtml = ""; let upCount = 0;
+            if(CRYPTOS.length > 0) {
+                const cryptoRes = await fetch(BINANCE_API);
+                const cryptoData = await cryptoRes.json();
+                for(let sym of CRYPTOS) {
+                    let item = cryptoData.find(d => d.symbol === sym);
+                    let price = item ? parseFloat(item.lastPrice) : (MASTER_DATA[sym]?.price || 0);
+                    let change = item ? parseFloat(item.priceChangePercent) : (MASTER_DATA[sym]?.change || 0);
+                    let type = change > 3.0 ? "WHALE" : "NORMAL";
+                    let text = change > 3.0 ? "🟩 巨鯨吸籌" : (change < -4.0 ? "🟥 機構出貨" : "---");
+                    if(change > 3.0) upCount++;
 
-            for(let sym of CRYPTOS) {
-                let item = cryptoData.find(d => d.symbol === sym);
-                let price = item ? parseFloat(item.lastPrice) : (sym.includes("SNDK") ? 2100.94 : 1134.86);
-                let change = item ? parseFloat(item.priceChangePercent) : (sym.includes("SNDK") ? -4.94 : -1.47);
-                
-                let type = "NORMAL", text = "---";
-                if (change > 3.0 || sym.includes("SOL")) { type = "WHALE"; text = "🟩 巨鯨吸籌"; upCount++; }
-                else if (change < -4.0 || sym.includes("SNDK")) { type = "DUMP"; text = "🟥 機構出貨"; }
-
-                cryptoHtml += `
-                    <div class="asset-row">
-                        <div class="col-left">
-                            <span class="asset-name">${sym.replace("USDT","")} perp</span>
-                            <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
-                        </div>
-                        <div class="col-center">
-                            <span class="vol-label">秒級動能</span>
-                            <span class="vol-value" style="color:var(--oi-purple)">LIVE</span>
-                        </div>
-                        <div class="col-right">
-                            <span class="asset-price">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
-                            <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
+                    cryptoHtml += `
+                        <div class="asset-row">
+                            <div class="col-left">
+                                <span class="asset-name">${sym.replace("USDT","")} perp</span>
+                                <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
+                            </div>
+                            <div class="col-center"><span class="vol-label">秒級動能</span><span class="vol-value" style="color:var(--oi-purple)">LIVE</span></div>
+                            <div class="col-right">
+                                <span class="asset-price">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                                <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
+                            </div>
+                        </div>`;
+                }
             }
-            document.getElementById('crypto-container').innerHTML = cryptoHtml;
+            document.getElementById('crypto-container').innerHTML = cryptoHtml || '<div style="padding:20px;color:var(--text-sub);text-align:center">請至設置頁面新增合約</div>';
 
-            // 2. 渲染台股獨立區塊
             let twHtml = ""; const twOpen = isTWMarketOpen();
             for(let ticker of TW_STOCKS) {
-                let cache = MOCK_DATA[ticker];
+                let cache = MASTER_DATA[ticker] || { price: 100, change: 0, baseInflow: 50 };
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
                 let text = cache.change > 1.0 ? "🟩 巨鯨吸籌" : "---";
-                
                 let centerHtml = `<span class="vol-label">主動買進</span><span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>`;
                 if (twOpen) {
                     let liveInflow = cache.baseInflow + (Math.random() * 4 - 2);
                     centerHtml = `<span class="vol-label">Net Inflow</span><span class="vol-value" style="color:${liveInflow>=50?'var(--color-up)':'var(--color-down)'}">${liveInflow.toFixed(1)}%</span>`;
                 }
-
                 twHtml += `
                     <div class="asset-row">
-                        <div class="col-left">
-                            <span class="asset-name" style="color:var(--tw-blue)">${ticker}</span>
-                            <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
-                        </div>
+                        <div class="col-left"><span class="asset-name" style="color:var(--tw-blue)">${ticker}</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
                         <div class="col-center">${centerHtml}</div>
                         <div class="col-right">
                             <span class="asset-price">${ticker==='加權指數'?'':'$'}${cache.price.toLocaleString()}</span>
@@ -297,41 +383,31 @@
                         </div>
                     </div>`;
             }
-            document.getElementById('tw-stock-container').innerHTML = twHtml;
+            document.getElementById('tw-stock-container').innerHTML = twHtml || '<div style="padding:20px;color:var(--text-sub);text-align:center">請至設置頁面新增台股</div>';
 
-            // 3. 美股區塊
             let stockHtml = "";
             for(let ticker of STOCKS) {
-                let cache = MOCK_DATA[ticker];
+                let cache = MASTER_DATA[ticker] || { price: 100, change: 0 };
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
-                let text = cache.change > 1.0 ? "🚀 密集突破" : "---";
-
                 stockHtml += `
                     <div class="asset-row">
-                        <div class="col-left">
-                            <span class="asset-name">${ticker}</span>
-                            <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
-                        </div>
-                        <div class="col-center">
-                            <span class="vol-label">STATUS</span>
-                            <span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>
-                        </div>
+                        <div class="col-left"><span class="asset-name">${ticker}</span><span class="asset-tag tag-${type.toLowerCase()}">${cache.change>1?'🚀 密集突破':'---'}</span></div>
+                        <div class="col-center"><span class="vol-label">STATUS</span><span class="vol-value" style="color:var(--text-sub)">🔒 休市</span></div>
                         <div class="col-right">
                             <span class="asset-price">$${cache.price.toFixed(2)}</span>
                             <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
                         </div>
                     </div>`;
             }
-            document.getElementById('stock-container').innerHTML = stockHtml;
+            document.getElementById('stock-container').innerHTML = stockHtml || '<div style="padding:20px;color:var(--text-sub);text-align:center">請至設置頁面新增美股</div>';
 
             const dec = document.getElementById('jpm-decision');
             if(upCount >= 2) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
             else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
-
         } catch (e) { console.error(e); }
     }
 
-    updateWebTerminal();
+    renderChips(); updateWebTerminal();
     setInterval(updateWebTerminal, 3000); 
     setInterval(generateLiveLog, 1000);   
 </script>
