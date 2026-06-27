@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v30.2</title>
+    <title>JPM Command Center v30.3</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -55,7 +55,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* 📱 完美均分 5 個按鈕，確保設置（⚙️）待在最右邊不被擠出去 */
+        /* 📱 底部導覽列精確均分樣式 */
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #161b22; border-top: 1px solid var(--border-color);
@@ -91,7 +91,7 @@
 
         .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
 
-        /* 🚨 爆倉流排版 */
+        /* 🚨 爆倉排版 */
         .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .power-bar-wrapper { height: 18px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
         .power-long { background: var(--color-down); height: 100%; width: 50%; transition: width 0.3s ease; }
@@ -100,9 +100,9 @@
         .liq-log-list { max-height: 320px; overflow-y: auto; font-family: monospace; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
         .liq-item { padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; font-weight: bold; }
         .liq-long { background: rgba(248,68,68,0.12); color: var(--color-down); border-left: 3px solid var(--color-down); }
-        .liq-short { background: rgba(35,197,94,0.12); color: var(--up-color); border-left: 3px solid var(--color-up); }
+        .liq-short { background: rgba(35,197,94,0.12); color: var(--color-up); border-left: 3px solid var(--color-up); }
 
-        /* ⚙️ 核心配置回歸樣式 */
+        /* ⚙️ 設置區塊專屬視覺 */
         .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
         .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; min-width: 0; }
@@ -117,7 +117,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v30.2</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v30.3</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
         <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
     </div>
@@ -170,7 +170,7 @@
 
     <div id="tab-config" class="tab-content">
         <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約自訂</div>
+            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約看盤自訂</div>
             <div class="config-input-group">
                 <select id="crypto-select" class="config-select">
                     <option value="">-- 快速選擇合約 --</option>
@@ -187,7 +187,7 @@
         </div>
 
         <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--tw-blue)">🇹🇼 台股自訂</div>
+            <div class="group-title" style="margin-top:0; color:var(--tw-blue)">🇹🇼 台股看盤自訂</div>
             <div class="config-input-group">
                 <select id="taiwan-select" class="config-select">
                     <option value="">-- 快速選擇台股 --</option>
@@ -197,6 +197,8 @@
                     <option value="聯電">聯電</option>
                     <option value="聯發科">聯發科</option>
                     <option value="南電">南電</option>
+                    <option value="0056">0056</option>
+                    <option value="00878">00878</option>
                 </select>
                 <input type="text" id="taiwan-custom" class="config-input" placeholder="代號 (如 2330)">
                 <button class="config-btn" onclick="addAsset('taiwan')">新增</button>
@@ -205,7 +207,7 @@
         </div>
 
         <div class="config-box">
-            <div class="group-title" style="margin-top:0">🇺🇸 美股自訂</div>
+            <div class="group-title" style="margin-top:0">🇺🇸 美股看盤自訂</div>
             <div class="config-input-group">
                 <select id="stock-select" class="config-select">
                     <option value="">-- 快速選擇美股 --</option>
@@ -241,7 +243,8 @@
 </nav>
 
 <script>
-    if (!localStorage.getItem('web_v302_flush')) { localStorage.clear(); localStorage.setItem('web_v302_flush', 'true'); }
+    // 🧠 v30.3 版本強制更新：大清洗
+    if (!localStorage.getItem('web_v303_master_flush')) { localStorage.clear(); localStorage.setItem('web_v303_master_flush', 'true'); }
 
     const BASE_DICT = {
         "加權指數": { id: "加權指數", name: "加權指數", price: 44571.7, change: -1.69 },
@@ -249,7 +252,9 @@
         "鴻海": { id: "鴻海", name: "鴻海", price: 214.5, change: -0.45 },
         "聯電": { id: "聯電", name: "聯電", price: 53.2, change: -0.20 },
         "聯發科": { id: "聯發科", name: "聯發科", price: 3880.0, change: -14.81 },
-        "南電": { id: "南電", name: "南電", price: 154.5, change: -1.30 }
+        "南電": { id: "南電", name: "南電", price: 154.5, change: -1.30 },
+        "0056": { id: "0056", name: "0056", price: 41.25, change: 0.22 },
+        "00878": { id: "00878", name: "00878", price: 23.45, change: 0.15 }
     };
 
     const US_DICT = {
@@ -261,7 +266,7 @@
 
     let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
     let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
-    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電"];
+    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電", "0056", "00878"];
 
     const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
     let totalLongLiq = 50000; let totalShortLiq = 50000;
@@ -341,10 +346,12 @@
         let longPercent = ((totalLongLiq / total) * 100).toFixed(0);
         let shortPercent = (100 - longPercent);
         
-        document.getElementById('power-long-bar').style.width = longPercent + "%";
-        document.getElementById('power-short-bar').style.width = shortPercent + "%";
-        document.getElementById('power-long-text').innerText = `🔴 多頭爆倉: ${longPercent}%`;
-        document.getElementById('power-short-text').innerText = `🟢 空頭軋空: ${shortPercent}%`;
+        if (document.getElementById('power-long-bar')) {
+            document.getElementById('power-long-bar').style.width = longPercent + "%";
+            document.getElementById('power-short-bar').style.width = shortPercent + "%";
+            document.getElementById('power-long-text').innerText = `🔴 多頭爆倉: ${longPercent}%`;
+            document.getElementById('power-short-text').innerText = `🟢 空頭軋空: ${shortPercent}%`;
+        }
 
         const item = document.createElement('div');
         item.className = `liq-item ${isLong ? 'liq-long' : 'liq-short'}`;
@@ -395,6 +402,11 @@
             let twHtml = ""; const twOpen = isTWMarketOpen();
             for(let key of TW_STOCKS) {
                 let cache = MASTER_DATA[key];
+                if(!cache) {
+                    let base = BASE_DICT[key] || { name: key, price: 150, change: 0 };
+                    MASTER_DATA[key] = { name: base.name, price: base.price, change: base.change };
+                    cache = MASTER_DATA[key];
+                }
                 let centerContentHtml = "---";
                 if (key === "台積電") centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
                 if (key === "聯發科") centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
