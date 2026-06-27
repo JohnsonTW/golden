@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v27.1</title>
+    <title>JPM Command Center v27.2</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -52,7 +52,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* 📱 修正：使用 Flex 布局平均分配，確保 5 個按鈕在所有 iPhone 螢幕完美塞滿不溢出 */
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #161b22; border-top: 1px solid var(--border-color);
@@ -81,7 +80,6 @@
         
         .tag-normal { background: #21262d; color: var(--text-sub); }
         .tag-whale { background: #065f46; color: #34d399; } 
-        .tag-dump { background: #991b1b; color: #fee2e2; }  
 
         .col-center { width: 75px; display: flex; flex-direction: column; align-items: center; }
         .vol-label { font-size: 8px; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
@@ -115,7 +113,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.1</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v27.2</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
     </div>
 
@@ -188,14 +186,14 @@
             <div class="config-input-group">
                 <select id="taiwan-select" class="config-select">
                     <option value="">-- 快速選擇台股 --</option>
-                    <option value="加權指數">加權指數 (^TWII)</option>
-                    <option value="台積電">台積電 (2330)</option>
-                    <option value="鴻海">鴻海 (2317)</option>
-                    <option value="聯電">聯電 (2303)</option>
-                    <option value="聯發科">聯發科 (2454)</option>
-                    <option value="南電">南電 (8046)</option>
+                    <option value="加權指數">加權指數</option>
+                    <option value="台積電">台積電</option>
+                    <option value="鴻海">鴻海</option>
+                    <option value="聯電">聯電</option>
+                    <option value="聯發科">聯發科</option>
+                    <option value="南電">南電</option>
                 </select>
-                <input type="text" id="taiwan-custom" class="config-input" placeholder="代號或名稱">
+                <input type="text" id="taiwan-custom" class="config-input" placeholder="代號 (如 2330)">
                 <button class="config-btn" onclick="addAsset('taiwan')">新增</button>
             </div>
             <div class="chip-list" id="taiwan-chips"></div>
@@ -246,20 +244,34 @@
     const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
     let totalLongLiq = 50000; let totalShortLiq = 50000;
 
-    const MASTER_DATA = {
-        "加權指數": { price: 22840, change: 0.85, baseInflow: 54.5 },
-        "台積電": { price: 1015, change: 1.50, baseInflow: 61.2 },
-        "鴻海": { price: 212.5, change: -0.45, baseInflow: 43.8 },
-        "聯電": { price: 49.50, change: -0.20, baseInflow: 47.1 },
-        "聯發科": { price: 1385, change: 2.15, baseInflow: 58.4 },
-        "南電": { price: 152.0, change: -1.30, baseInflow: 41.2 },
-        "0056": { price: 41.25, change: 0.22, baseInflow: 51.5 },
-        "00878": { price: 23.45, change: 0.15, baseInflow: 49.2 },
-        "TSM": { price: 174.25, change: 1.45 },
-        "NVDA": { price: 126.80, change: 2.10 },
-        "AAPL": { price: 188.40, change: -0.35 },
-        "TSLA": { price: 182.15, change: -1.85 }
+    // 🏛️ 基礎精確歷史數據字典 (修復代號與名稱不對齊的對照 Bug)
+    const BASE_DICT = {
+        "加權指數": { name: "加權指數", price: 22840, baseInflow: 54.5 },
+        "^TWII": { name: "加權指數", price: 22840, baseInflow: 54.5 },
+        "台積電": { name: "台積電", price: 1015, baseInflow: 61.2 },
+        "2330": { name: "台積電", price: 1015, baseInflow: 61.2 },
+        "鴻海": { name: "鴻海", price: 212.5, baseInflow: 43.8 },
+        "2317": { name: "鴻海", price: 212.5, baseInflow: 43.8 },
+        "聯電": { name: "聯電", price: 49.50, baseInflow: 47.1 },
+        "2303": { name: "聯電", price: 49.50, baseInflow: 47.1 },
+        "聯發科": { name: "聯發科", price: 1385, baseInflow: 58.4 },
+        "2454": { name: "聯發科", price: 1385, baseInflow: 58.4 },
+        "南電": { name: "南電", price: 152.0, baseInflow: 41.2 },
+        "8046": { name: "南電", price: 152.0, baseInflow: 41.2 }
     };
+
+    let MASTER_DATA = {};
+    function initMasterData() {
+        Object.keys(BASE_DICT).forEach(k => {
+            MASTER_DATA[k] = { 
+                name: BASE_DICT[k].name,
+                price: BASE_DICT[k].price, 
+                change: (Math.random() * 3 - 1.2), 
+                baseInflow: BASE_DICT[k].baseInflow 
+            };
+        });
+    }
+    initMasterData();
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -285,13 +297,18 @@
             if(!CRYPTOS.includes(val)) CRYPTOS.push(val);
             localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS));
         } else if(type === 'taiwan') {
-            if(!TW_STOCKS.includes(val)) TW_STOCKS.push(val);
-            if(!MASTER_DATA[val]) MASTER_DATA[val] = { price: 100 + Math.floor(Math.random()*200), change: (Math.random()*4-2), baseInflow: 50 };
+            let targetName = val;
+            if (BASE_DICT[val]) { targetName = BASE_DICT[val].name; }
+            if(!TW_STOCKS.includes(targetName)) TW_STOCKS.push(targetName);
+            
+            if(!MASTER_DATA[targetName]) {
+                MASTER_DATA[targetName] = { name: targetName, price: BASE_DICT[val]?.price || (100 + Math.floor(Math.random()*200)), change: (Math.random()*2-1), baseInflow: 50 };
+            }
             localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
         } else if(type === 'stock') {
             val = val.toUpperCase();
             if(!STOCKS.includes(val)) STOCKS.push(val);
-            if(!MASTER_DATA[val]) MASTER_DATA[val] = { price: 50 + Math.floor(Math.random()*150), change: (Math.random()*4-2) };
+            if(!MASTER_DATA[val]) MASTER_DATA[val] = { name: val, price: val==='TSM'?174.25:(50 + Math.floor(Math.random()*150)), change: (Math.random()*2-1) };
             localStorage.setItem('web_stocks', JSON.stringify(STOCKS));
         }
         select.value = ''; custom.value = ''; renderChips(); updateWebTerminal();
@@ -347,15 +364,12 @@
                     let price = item ? parseFloat(item.lastPrice) : (MASTER_DATA[sym]?.price || 0);
                     let change = item ? parseFloat(item.priceChangePercent) : (MASTER_DATA[sym]?.change || 0);
                     let type = change > 3.0 ? "WHALE" : "NORMAL";
-                    let text = change > 3.0 ? "🟩 巨鯨吸籌" : (change < -4.0 ? "🟥 機構出貨" : "---");
+                    let text = change > 3.0 ? "🟩 巨鯨吸籌" : "---";
                     if(change > 3.0) upCount++;
 
                     cryptoHtml += `
                         <div class="asset-row">
-                            <div class="col-left">
-                                <span class="asset-name">${sym.replace("USDT","")} perp</span>
-                                <span class="asset-tag tag-${type.toLowerCase()}">${text}</span>
-                            </div>
+                            <div class="col-left"><span class="asset-name">${sym.replace("USDT","")} perp</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
                             <div class="col-center"><span class="vol-label">秒級動能</span><span class="vol-value" style="color:var(--oi-purple)">LIVE</span></div>
                             <div class="col-right">
                                 <span class="asset-price">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
@@ -368,7 +382,10 @@
 
             let twHtml = ""; const twOpen = isTWMarketOpen();
             for(let ticker of TW_STOCKS) {
-                let cache = MASTER_DATA[ticker] || { price: 100, change: 0, baseInflow: 50 };
+                let cache = MASTER_DATA[ticker] || { name: ticker, price: 150, change: 0, baseInflow: 50 };
+                // 波動模擬
+                if (twOpen) { cache.price += (Math.random() * 2 - 1); cache.change += (Math.random() * 0.1 - 0.05); }
+                
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
                 let text = cache.change > 1.0 ? "🟩 巨鯨吸籌" : "---";
                 let centerHtml = `<span class="vol-label">主動買進</span><span class="vol-value" style="color:var(--text-sub)">🔒 休市</span>`;
@@ -378,10 +395,10 @@
                 }
                 twHtml += `
                     <div class="asset-row">
-                        <div class="col-left"><span class="asset-name" style="color:var(--tw-blue)">${ticker}</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
+                        <div class="col-left"><span class="asset-name" style="color:var(--tw-blue)">${cache.name}</span><span class="asset-tag tag-${type.toLowerCase()}">${text}</span></div>
                         <div class="col-center">${centerHtml}</div>
                         <div class="col-right">
-                            <span class="asset-price">${ticker==='加權指數'?'':'$'}${cache.price.toLocaleString()}</span>
+                            <span class="asset-price">${cache.name==='加權指數'?'':'$'}${cache.price.toLocaleString(undefined, {maximumFractionDigits:1, minimumFractionDigits:1})}</span>
                             <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
                         </div>
                     </div>`;
@@ -390,7 +407,7 @@
 
             let stockHtml = "";
             for(let ticker of STOCKS) {
-                let cache = MASTER_DATA[ticker] || { price: 100, change: 0 };
+                let cache = MASTER_DATA[ticker] || { name: ticker, price: 120, change: 0 };
                 let type = cache.change > 1.0 ? "WHALE" : "NORMAL";
                 stockHtml += `
                     <div class="asset-row">
