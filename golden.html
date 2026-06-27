@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v31.2</title>
+    <title>JPM Command Center v31.3</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -72,7 +72,6 @@
 
         .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
 
-        /* 🚨 爆倉流 */
         .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .power-bar-wrapper { height: 18px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
         .power-long { background: var(--color-down); height: 100%; width: 50%; transition: width 0.3s ease; }
@@ -83,7 +82,6 @@
         .liq-long { background: rgba(248,68,68,0.12); color: var(--color-down); border-left: 3px solid var(--color-down); }
         .liq-short { background: rgba(35,197,94,0.12); color: var(--color-up); border-left: 3px solid var(--color-up); }
 
-        /* ⚙️ 設置配置 */
         .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
         .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; min-width: 0; }
@@ -100,7 +98,7 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v31.2</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v31.3</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
         <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
     </div>
@@ -194,7 +192,7 @@
 </nav>
 
 <script>
-    if (!localStorage.getItem('web_v312_flush')) { localStorage.clear(); localStorage.setItem('web_v312_flush', 'true'); }
+    if (!localStorage.getItem('web_v313_flush')) { localStorage.clear(); localStorage.setItem('web_v313_flush', 'true'); }
 
     const BASE_DICT = {
         "加權指數": { id: "加權指數", name: "加權指數", price: 44571.7, change: -1.69 },
@@ -214,7 +212,6 @@
     let currentLongPercent = 50;
     let pinningAsset = ""; 
     
-    // 🧠 核心：信號滯留鎖定器資料結構
     let latchExpiryTime = 0; 
     let latchedAsset = "";
     let latchedPercent = 0;
@@ -260,18 +257,15 @@
         if(log.children.length > 8) log.lastChild.remove();
         document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${(Math.random() * 3 + 1.2).toFixed(2)}M)`;
 
-        // 🏛️ 狀態鎖定核心邏輯 (防閃爍)
         const now = Date.now();
         const synergyAlert = document.getElementById('synergy-alert');
         
-        // 1. 如果滿足當前實時觸發條件，更新鎖定過期時間為「未來 15 秒」
         if (pinningAsset && currentLongPercent >= 71) {
-            latchExpiryTime = now + 15000; // 鎖定 15 秒
+            latchExpiryTime = now + 15000; 
             latchedAsset = pinningAsset;
             latchedPercent = currentLongPercent;
         }
 
-        // 2. 判定目前是否仍在「15秒鎖定保護期」內
         if (now < latchExpiryTime) {
             synergyAlert.style.display = "block";
             let timeLeft = Math.ceil((latchExpiryTime - now) / 1000);
@@ -291,6 +285,7 @@
             if(!cryptoRes.ok) throw new Error();
             const cryptoData = await cryptoRes.json();
             document.getElementById('jpm-status-indicator').innerText = "● LIVE";
+            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
 
             for(let sym of CRYPTOS) {
                 let item = cryptoData.find(d => d.symbol === sym);
@@ -344,8 +339,18 @@
             else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
         } catch (e) {
             document.getElementById('jpm-status-indicator').innerText = "⚠️ SIGNAL LOST";
+            document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
         }
     }
+
+    // 🧠 核心破關：監聽手機解鎖、重開分頁事件，強制刷新防凍結！
+    document.addEventListener("visibilitychange", function() {
+        if (!document.hidden) {
+            console.log("📱 手機解鎖喚醒！強制重對齊最新數據...");
+            document.getElementById('jpm-status-indicator').innerText = "🔄 WAKING UP...";
+            updateWebTerminal();
+        }
+    });
 
     updateWebTerminal();
     setInterval(updateWebTerminal, 3000); 
