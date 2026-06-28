@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v32.5</title>
+    <title>JPM Command Center v32.6</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -23,17 +23,12 @@
         .jpm-title { font-size: 19px; font-weight: 800; margin: 2px 0; color: #f1f5f9; }
         .heartbeat-status { position: absolute; top: 12px; right: 8px; font-size: 11px; color: var(--color-up); font-weight: bold; }
 
-        .synergy-alert-bar { display: none; background: #7f1d1d; border: 2px solid #ef4444; color: #fee2e2; border-radius: 6px; padding: 12px; margin-bottom: 10px; font-weight: 800; font-size: 14px; text-align: center; animation: danger-flash 0.5s infinite alternate; box-shadow: 0 0 15px rgba(239,68,68,0.5); }
-        .synergy-details { font-size: 11px; font-weight: bold; color: #fca5a5; margin-top: 4px; font-family: monospace; }
-
         .jpm-macro-panel { background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 12px; }
         .panel-row { display: flex; justify-content: space-between; align-items: center; }
         .panel-title { font-weight: bold; color: var(--jpm-gold); }
         .panel-value { font-family: monospace; font-size: 14px; font-weight: bold; }
 
-        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .status-hold { background: #22272e; color: #cbd5e1; }
-        .status-buy { background: #064e3b; color: #6ee7b7; }
+        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); background: #22272e; color: #cbd5e1; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -58,16 +53,16 @@
         .tag-dump { background: rgba(248, 68, 68, 0.15); color: #fee2e2; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(248, 68, 68, 0.3); font-size: 13px; }
         .tag-pin { background: rgba(212, 175, 55, 0.15); color: var(--jpm-gold); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 13px; }
 
+        /* ⚙️ 設置面板樣式 */
         .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
         .config-input { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; min-width: 0; text-transform: uppercase; }
         .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
-        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 10px; }
         .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; color: white; }
         .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
 
         .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
-        @keyframes danger-flash { from { background: #560f0f; border-color: #ef4444; } to { background: #991b1b; border-color: #f87171; } }
     </style>
 </head>
 <body>
@@ -79,45 +74,56 @@
         <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
     </div>
 
-    <div id="synergy-alert" class="synergy-alert-bar">
-        </div>
-
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">🎯 TSM ADR 溢價率 (真實動態對齊)</span>
+            <span class="panel-title">🎯 TSM ADR 溢價率 (錨定計算)</span>
             <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+0.00%</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
             <span class="panel-title">📡 數據管道模式</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">智能頻率分流：加密 1.5s / 權值股 8s (抗過載防禦版)</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">全市場自訂動態引擎 (加密 1.5s / 股權 8s)</span>
         </div>
     </div>
 
-    <div id="jpm-decision" class="jpm-conclusion status-hold">JPM WEB: HOLD / 籌碼沉澱橫盤期</div>
+    <div id="jpm-decision" class="jpm-conclusion">JPM ENGINE: STREAMING REAL-TIME DATA</div>
 
     <div id="tab-crypto" class="tab-content active">
-        <div class="group-title">🪙 CRYPTO PERPETUALS (1.5秒級高頻實盤流速監測)</div>
+        <div class="group-title">🪙 CRYPTO PERPETUALS</div>
         <div id="crypto-container" class="asset-list"></div>
     </div>
 
     <div id="tab-taiwan" class="tab-content">
-        <div class="group-title">🇹🇼 TAIWAN EQUITIES (100% 實盤真實報價)</div>
+        <div class="group-title">🇹🇼 TAIWAN EQUITIES</div>
         <div id="tw-stock-container" class="asset-list"></div>
     </div>
 
     <div id="tab-stock" class="tab-content">
-        <div class="group-title">🇺🇸 US EQUITY STOCKS (100% 實盤真實報價)</div>
+        <div class="group-title">🇺🇸 US EQUITY STOCKS</div>
         <div id="stock-container" class="asset-list"></div>
     </div>
 
     <div id="tab-config" class="tab-content">
         <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 自訂監控永續合約代號</div>
+            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 自訂監控加密貨幣</div>
             <div class="config-input-group">
                 <input type="text" id="crypto-custom" class="config-input" placeholder="例如: SOLUSDT">
-                <button class="config-btn" onclick="addCustomCrypto()">新增監控</button>
+                <button class="config-btn" onclick="addCrypto()">新增</button>
             </div>
             <div class="chip-list" id="crypto-chips"></div>
+
+            <div class="group-title" style="margin-top:15px; color:var(--tw-blue)">🇹🇼 自訂監控台股代號 (純數字即可)</div>
+            <div class="config-input-group">
+                <input type="text" id="tw-custom" class="config-input" placeholder="例如: 2317 或 2454">
+                <button class="config-btn" style="background:var(--tw-blue); color:white;" onclick="addTwStock()">新增</button>
+            </div>
+            <div class="chip-list" id="tw-chips"></div>
+
+            <div class="group-title" style="margin-top:15px; color:var(--jpm-gold)">🇺🇸 自訂監控美股代號</div>
+            <div class="config-input-group">
+                <input type="text" id="us-custom" class="config-input" placeholder="例如: AAPL 或 AMD">
+                <button class="config-btn" onclick="addUsStock()">新增</button>
+            </div>
+            <div class="chip-list" id="us-chips"></div>
         </div>
     </div>
 </div>
@@ -138,14 +144,17 @@
 </nav>
 
 <script>
-    if (!localStorage.getItem('jpm_custom_cryptos')) {
-        localStorage.setItem('jpm_custom_cryptos', JSON.stringify(["BTCUSDT", "ETHUSDT", "SOLUSDT"]));
-    }
-    let CRYPTOS = JSON.parse(localStorage.getItem('jpm_custom_cryptos'));
+    // 🧠 多市場初始化快取快照
+    if (!localStorage.getItem('cfg_cryptos')) localStorage.setItem('cfg_cryptos', JSON.stringify(["BTCUSDT", "ETHUSDT", "SOLUSDT"]));
+    if (!localStorage.getItem('cfg_tw_stocks')) localStorage.setItem('cfg_tw_stocks', JSON.stringify(["2330", "2317", "2454"]));
+    if (!localStorage.getItem('cfg_us_stocks')) localStorage.setItem('cfg_us_stocks', JSON.stringify(["TSM", "NVDA", "AAPL"]));
 
-    let cachedTsmcPrice = 2340.0; let cachedTsmcChg = -0.63;
-    let cachedTsmPrice = 432.35; let cachedTsmChg = -0.61;
-    let isMarketOpen = false; // 🧠 盤後狀態凍結旗標
+    let CRYPTOS = JSON.parse(localStorage.getItem('cfg_cryptos'));
+    let TW_STOCKS = JSON.parse(localStorage.getItem('cfg_tw_stocks'));
+    let US_STOCKS = JSON.parse(localStorage.getItem('cfg_us_stocks'));
+
+    let isMarketOpen = false;
+    let ADR_TSM_PRICE = 215.40; let ADR_TSMC_PRICE = 2340.0;
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -155,33 +164,33 @@
     }
 
     function renderChips() {
-        const container = document.getElementById('crypto-chips');
-        if(!container) return;
-        container.innerHTML = CRYPTOS.map(sym => `
-            <div class="chip"><span>${sym}</span><span class="chip-del" onclick="removeCrypto('${sym}')">✕</span></div>
-        `).join('');
+        document.getElementById('crypto-chips').innerHTML = CRYPTOS.map(s => `<div class="chip"><span>${s}</span><span class="chip-del" onclick="removeAsset('crypto','${s}')">✕</span></div>`).join('');
+        document.getElementById('tw-chips').innerHTML = TW_STOCKS.map(s => `<div class="chip"><span>${s}</span><span class="chip-del" onclick="removeAsset('tw','${s}')">✕</span></div>`).join('');
+        document.getElementById('us-chips').innerHTML = US_STOCKS.map(s => `<div class="chip"><span>${s}</span><span class="chip-del" onclick="removeAsset('us','${s}')">✕</span></div>`).join('');
     }
 
-    function addCustomCrypto() {
-        const input = document.getElementById('crypto-custom');
-        let val = input.value.trim().toUpperCase();
-        if(val && !CRYPTOS.includes(val)) {
-            if(!val.endsWith("USDT")) val += "USDT";
-            CRYPTOS.push(val);
-            localStorage.setItem('jpm_custom_cryptos', JSON.stringify(CRYPTOS));
-            input.value = ""; renderChips(); updateCryptoPipeline();
-        }
+    function addCrypto() {
+        let el = document.getElementById('crypto-custom'); let v = el.value.trim().toUpperCase();
+        if(v && !CRYPTOS.includes(v)) { if(!v.endsWith("USDT")) v += "USDT"; CRYPTOS.push(v); localStorage.setItem('cfg_cryptos', JSON.stringify(CRYPTOS)); el.value=""; renderChips(); updateCryptoPipeline(); }
+    }
+    function addTwStock() {
+        let el = document.getElementById('tw-custom'); let v = el.value.trim();
+        if(v && !TW_STOCKS.includes(v)) { TW_STOCKS.push(v); localStorage.setItem('cfg_tw_stocks', JSON.stringify(TW_STOCKS)); el.value=""; renderChips(); updateStockPipeline(); }
+    }
+    function addUsStock() {
+        let el = document.getElementById('us-custom'); let v = el.value.trim().toUpperCase();
+        if(v && !US_STOCKS.includes(v)) { US_STOCKS.push(v); localStorage.setItem('cfg_us_stocks', JSON.stringify(US_STOCKS)); el.value=""; renderChips(); updateStockPipeline(); }
     }
 
-    function removeCrypto(sym) {
-        CRYPTOS = CRYPTOS.filter(c => c !== sym);
-        localStorage.setItem('jpm_custom_cryptos', JSON.stringify(CRYPTOS));
-        renderChips(); updateCryptoPipeline();
+    function removeAsset(type, val) {
+        if(type==='crypto') { CRYPTOS = CRYPTOS.filter(c => c!==val); localStorage.setItem('cfg_cryptos', JSON.stringify(CRYPTOS)); }
+        if(type==='tw') { TW_STOCKS = TW_STOCKS.filter(c => c!==val); localStorage.setItem('cfg_tw_stocks', JSON.stringify(TW_STOCKS)); }
+        if(type==='us') { US_STOCKS = US_STOCKS.filter(c => c!==val); localStorage.setItem('cfg_us_stocks', JSON.stringify(US_STOCKS)); }
+        renderChips(); updateCryptoPipeline(); updateStockPipeline();
     }
 
-    // 🔬 量化核心：如果是盤後凍結期，強行返回隱藏
-    function calculateLabel(change, amplitude, forceFreeze = false) {
-        if (forceFreeze) return "---"; 
+    function calculateLabel(change, amplitude, forceFreeze) {
+        if (forceFreeze) return "---";
         if (change > 3.0) return `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
         if (change < -4.0) return `<span class="tag-dump">🟥 機構出貨</span>`;
         if (amplitude > 4.5) return `<span class="tag-pin">🟧 插針反彈</span>`;
@@ -190,110 +199,95 @@
 
     async function updateCryptoPipeline() {
         try {
-            const cryptoRes = await fetch("https://fapi.binance.com/fapi/v1/ticker/24hr");
-            if(!cryptoRes.ok) throw new Error();
-            const cryptoData = await cryptoRes.json();
-            
-            document.getElementById('jpm-status-indicator').innerText = "● LIVE";
-            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
-
-            let cryptoHtml = ""; let upCount = 0;
-
+            const res = await fetch("https://fapi.binance.com/fapi/v1/ticker/24hr");
+            const cryptoData = await res.json();
+            let html = "";
             for(let sym of CRYPTOS) {
                 let item = cryptoData.find(d => d.symbol === sym);
                 if(!item) continue;
-                let price = parseFloat(item.lastPrice);
-                let change = parseFloat(item.priceChangePercent);
-                let high = parseFloat(item.highPrice);
-                let low = parseFloat(item.lowPrice);
-                let amp = low > 0 ? ((high - low) / low) * 100 : 0;
-                
-                // 加密貨幣 24h 永不關盤，不進行狀態凍結
-                let stateLabel = calculateLabel(change, amp, false);
-                if(change > 3.0) upCount++;
-
-                cryptoHtml += `
+                let price = parseFloat(item.lastPrice), change = parseFloat(item.priceChangePercent);
+                let amp = parseFloat(item.lowPrice) > 0 ? ((parseFloat(item.highPrice) - parseFloat(item.lowPrice)) / parseFloat(item.lowPrice)) * 100 : 0;
+                html += `
                     <div class="asset-row">
-                        <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${sym.replace("USDT","")}</span></div>
-                        <div class="col-center"><div class="state-label-box">${stateLabel}</div></div>
+                        <div class="col-left"><span style="font-size:18px; font-weight:bold;">${sym.replace("USDT","")}</span></div>
+                        <div class="col-center"><div class="state-label-box">${calculateLabel(change, amp, false)}</div></div>
                         <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                            <span style="font-size:18px; font-weight:bold; font-family:monospace;">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
                             <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
                         </div>
                     </div>`;
             }
-            document.getElementById('crypto-container').innerHTML = cryptoHtml;
-        } catch (e) {
-            document.getElementById('jpm-status-indicator').innerText = "⚠️ CRYPTO OVERLOAD";
-            document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
+            document.getElementById('crypto-container').innerHTML = html;
+        } catch (e) {}
+    }
+
+    // 📡 通用型異步解析代理，全面封裝防爆隔離
+    async function fetchYahooStock(ticker) {
+        try {
+            const res = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d`));
+            const json = await res.json();
+            const meta = JSON.parse(json.contents).chart.result[0].meta;
+            let price = meta.regularMarketPrice;
+            let change = ((price - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
+            return { price, change, success: true };
+        } catch(e) {
+            return { price: 0, change: 0, success: false };
         }
     }
 
     async function updateStockPipeline() {
-        // 🧠 依據時間動態斷言當前是否為美股盤中交易時間
-        let d = new Date();
-        let day = d.getDay();
-        let hr = d.getHours();
-        // 簡易判定：週一到週五的晚上 21:30 ~ 隔天凌晨 04:00 為開盤，其餘為凍結期
-        isMarketOpen = (day >= 1 && day <= 5) && (hr >= 21 || hr <= 4);
-
-        try {
-            const twRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/2330.TW?interval=1d"));
-            const twJson = await twRes.json();
-            const twMeta = JSON.parse(twJson.contents).chart.result[0].meta;
-            cachedTsmcPrice = twMeta.regularMarketPrice;
-            cachedTsmcChg = ((cachedTsmcPrice - twMeta.chartPreviousClose) / twMeta.chartPreviousClose) * 100;
-        } catch(e) {}
-
-        try {
-            const usRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/TSM?interval=1d"));
-            const usJson = await usRes.json();
-            const usMeta = JSON.parse(usJson.contents).chart.result[0].meta;
-            cachedTsmPrice = usMeta.regularMarketPrice;
-            cachedTsmChg = ((cachedTsmPrice - usMeta.chartPreviousClose) / usMeta.chartPreviousClose) * 100;
-        } catch(e) {}
-
-        renderStockUI();
-    }
-
-    function renderStockUI() {
-        // 🤖 傳入 isMarketOpen 反向旗標。未開盤時，狀態強制輸出 "---"
+        let hr = new Date().getHours(), day = new Date().getDay();
+        isMarketOpen = (day >= 1 && day <= 5) && (hr >= 9 && hr <= 14 || hr >= 21 || hr <= 4);
         let stockFreeze = !isMarketOpen;
 
-        document.getElementById('tw-stock-container').innerHTML = `
-            <div class="asset-row">
-                <div class="col-left" style="color:var(--tw-blue); font-size:18px;">加權指數</div>
-                <div class="col-center"><div class="state-label-box">---</div></div>
-                <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">44,571.7</span><span class="asset-chg" style="color:var(--color-down)">-1.69%</span></div>
-            </div>
-            <div class="asset-row">
-                <div class="col-left" style="color:var(--tw-blue); font-size:18px;">台積電</div>
-                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmcChg, 0, stockFreeze)}</div></div>
-                <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$${cachedTsmcPrice.toFixed(1)}</span><span class="asset-chg" style="color:${cachedTsmcChg>=0?'var(--color-up)':'var(--color-down)'}">${cachedTsmcChg>=0?'+':''}${cachedTsmcChg.toFixed(2)}%</span></div>
-            </div>`;
+        // 1. 異步並行撈取台股
+        let twHtml = "";
+        for(let sym of TW_STOCKS) {
+            let ticker = sym === "加權指數" ? "%5ETWII" : `${sym}.TW`;
+            let name = sym === "加權指數" ? "加權指數" : `股號 ${sym}`;
+            let data = await fetchYahooStock(ticker);
+            if(sym === "2330" && data.success) ADR_TSMC_PRICE = data.price; // 鎖定溢價錨定底層
+            
+            twHtml += `
+                <div class="asset-row">
+                    <div class="col-left"><span style="color:var(--tw-blue); font-size:18px; font-weight:bold;">${name}</span></div>
+                    <div class="col-center"><div class="state-label-box">${data.success ? calculateLabel(data.change, 0, stockFreeze) : '連線中...'}</div></div>
+                    <div class="col-right">
+                        <span style="font-size:18px; font-weight:bold; font-family:monospace;">${data.success ? (sym==="加權指數"?"":"$")+data.price.toLocaleString(undefined,{maximumFractionDigits:1}) : '---'}</span>
+                        <span class="asset-chg" style="color:${data.change>=0?'var(--color-up)':'var(--color-down)'}">${data.success ? (data.change>=0?'+':'')+data.change.toFixed(2)+'%' : ''}</span>
+                    </div>
+                </div>`;
+        }
+        document.getElementById('tw-stock-container').innerHTML = twHtml;
 
-        document.getElementById('stock-container').innerHTML = `
-            <div class="asset-row">
-                <div class="col-left" style="color:var(--jpm-gold); font-size:18px;">TSM</div>
-                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmChg, 0, stockFreeze)}</div></div>
-                <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$${cachedTsmPrice.toFixed(2)}</span><span class="asset-chg" style="color:${cachedTsmChg>=0?'var(--color-up)':'var(--color-down)'}">${cachedTsmChg>=0?'+':''}${cachedTsmChg.toFixed(2)}%</span></div>
-            </div>
-            <div class="asset-row">
-                <div class="col-left" style="color:var(--jpm-gold); font-size:18px;">NVDA</div>
-                <div class="col-center"><div class="state-label-box">${calculateLabel(-14.18, 0, stockFreeze)}</div></div>
-                <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$192.53</span><span class="asset-chg" style="color:var(--color-down)">-14.18%</span></div>
-            </div>`;
+        // 2. 異步並行撈取美股
+        let usHtml = "";
+        for(let sym of US_STOCKS) {
+            let data = await fetchYahooStock(sym);
+            if(sym === "TSM" && data.success) ADR_TSM_PRICE = data.price; // 鎖定溢價錨定底層
+            
+            usHtml += `
+                <div class="asset-row">
+                    <div class="col-left"><span style="color:var(--jpm-gold); font-size:18px; font-weight:bold;">${sym}</span></div>
+                    <div class="col-center"><div class="state-label-box">${data.success ? calculateLabel(data.change, 0, stockFreeze) : '連線中...'}</div></div>
+                    <div class="col-right">
+                        <span style="font-size:18px; font-weight:bold; font-family:monospace;">${data.success ? "$"+data.price.toLocaleString(undefined,{maximumFractionDigits:2}) : '---'}</span>
+                        <span class="asset-chg" style="color:${data.change>=0?'var(--color-up)':'var(--color-down)'}">${data.success ? (data.change>=0?'+':'')+data.change.toFixed(2)+'%' : ''}</span>
+                    </div>
+                </div>`;
+        }
+        document.getElementById('stock-container').innerHTML = usHtml;
 
-        let realPremium = ((cachedTsmPrice * 5) / cachedTsmPrice - 1) * 13.42;
-        document.getElementById('tsm-premium').innerText = `+${realPremium.toFixed(2)}%`;
+        // 3. 計算真 TSM ADR 即時溢價
+        let realPremium = ADR_TSMC_PRICE > 0 ? ((ADR_TSM_PRICE * 5) / (ADR_TSMC_PRICE)) * 100 - 100 : 13.42;
+        document.getElementById('tsm-premium').innerText = `${realPremium >= 0 ? '+' : ''}${realPremium.toFixed(2)}%`;
     }
 
     renderChips();
     updateCryptoPipeline();
     updateStockPipeline();
-    
-    setInterval(updateCryptoPipeline, 1500); 
-    setInterval(updateStockPipeline, 8000); 
+    setInterval(updateCryptoPipeline, 1500);
+    setInterval(updateStockPipeline, 8000);
 </script>
 </body>
 </html>
