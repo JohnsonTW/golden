@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v32.4</title>
+    <title>JPM Command Center v32.5</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -74,15 +74,13 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v32.4</div>
-        <div class="jpm-title">全球跨市場即時量化矩陣</div>
+        <div class="jpm-brand">AMULET QUANT LABORATORY</div>
+        <div class="jpm-title">🔥 全球跨市場即時量化矩陣</div>
         <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
     </div>
 
     <div id="synergy-alert" class="synergy-alert-bar">
-        🏛️ <span id="synergy-title">SYSTEM</span> REAL-TIME SYNERGY DETECTED
-        <div id="synergy-metrics" class="synergy-details"></div>
-    </div>
+        </div>
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
@@ -90,7 +88,7 @@
             <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+0.00%</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 數據管道模式</span>
+            <span class="panel-title">📡 數據管道模式</span>
             <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">智能頻率分流：加密 1.5s / 權值股 8s (抗過載防禦版)</span>
         </div>
     </div>
@@ -145,9 +143,9 @@
     }
     let CRYPTOS = JSON.parse(localStorage.getItem('jpm_custom_cryptos'));
 
-    let latchExpiryTime = 0; let latchedAsset = ""; let latchedChg = 0;
     let cachedTsmcPrice = 2340.0; let cachedTsmcChg = -0.63;
-    let cachedTsmPrice = 215.40; let cachedTsmChg = 1.45;
+    let cachedTsmPrice = 432.35; let cachedTsmChg = -0.61;
+    let isMarketOpen = false; // 🧠 盤後狀態凍結旗標
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -181,25 +179,25 @@
         renderChips(); updateCryptoPipeline();
     }
 
-    function calculateLabel(change, amplitude) {
+    // 🔬 量化核心：如果是盤後凍結期，強行返回隱藏
+    function calculateLabel(change, amplitude, forceFreeze = false) {
+        if (forceFreeze) return "---"; 
         if (change > 3.0) return `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
         if (change < -4.0) return `<span class="tag-dump">🟥 機構出貨</span>`;
         if (amplitude > 4.5) return `<span class="tag-pin">🟧 插針反彈</span>`;
         return "---";
     }
 
-    // 📡 管道一：獨立加密高頻線路 (1.5秒級)
     async function updateCryptoPipeline() {
         try {
             const cryptoRes = await fetch("https://fapi.binance.com/fapi/v1/ticker/24hr");
-            if(!cryptoRes.ok) throw new Error("Binance Rate Limit");
+            if(!cryptoRes.ok) throw new Error();
             const cryptoData = await cryptoRes.json();
             
             document.getElementById('jpm-status-indicator').innerText = "● LIVE";
             document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
 
-            let cryptoHtml = ""; let upCount = 0; let ethPinning = false;
-            let now = Date.now();
+            let cryptoHtml = ""; let upCount = 0;
 
             for(let sym of CRYPTOS) {
                 let item = cryptoData.find(d => d.symbol === sym);
@@ -210,9 +208,9 @@
                 let low = parseFloat(item.lowPrice);
                 let amp = low > 0 ? ((high - low) / low) * 100 : 0;
                 
-                let stateLabel = calculateLabel(change, amp);
+                // 加密貨幣 24h 永不關盤，不進行狀態凍結
+                let stateLabel = calculateLabel(change, amp, false);
                 if(change > 3.0) upCount++;
-                if(sym.includes("ETH") && amp > 4.5) ethPinning = true;
 
                 cryptoHtml += `
                     <div class="asset-row">
@@ -225,50 +223,43 @@
                     </div>`;
             }
             document.getElementById('crypto-container').innerHTML = cryptoHtml;
-
-            // 處理即時警報
-            let btcItem = cryptoData.find(d => d.symbol === "BTCUSDT");
-            let btcChg = btcItem ? parseFloat(btcItem.priceChangePercent) : 0;
-            if (ethPinning && btcChg < -0.1) {
-                latchExpiryTime = now + 15000; latchedAsset = "ETH HARD-CORE"; latchedChg = btcChg;
-            }
-            renderAlertBar(now);
-
-            const dec = document.getElementById('jpm-decision');
-            if(upCount >= 1) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
-            else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
-
         } catch (e) {
             document.getElementById('jpm-status-indicator').innerText = "⚠️ CRYPTO OVERLOAD";
             document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
         }
     }
 
-    // 📡 管道二：獨立權值股中頻線路 (8秒級，防止公開代理拒絕連線)
     async function updateStockPipeline() {
+        // 🧠 依據時間動態斷言當前是否為美股盤中交易時間
+        let d = new Date();
+        let day = d.getDay();
+        let hr = d.getHours();
+        // 簡易判定：週一到週五的晚上 21:30 ~ 隔天凌晨 04:00 為開盤，其餘為凍結期
+        isMarketOpen = (day >= 1 && day <= 5) && (hr >= 21 || hr <= 4);
+
         try {
-            // 抓台股真實數據
             const twRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/2330.TW?interval=1d"));
             const twJson = await twRes.json();
             const twMeta = JSON.parse(twJson.contents).chart.result[0].meta;
             cachedTsmcPrice = twMeta.regularMarketPrice;
             cachedTsmcChg = ((cachedTsmcPrice - twMeta.chartPreviousClose) / twMeta.chartPreviousClose) * 100;
-        } catch(e) { console.log("台股代理解析超時，使用本地快取緩衝"); }
+        } catch(e) {}
 
         try {
-            // 抓美股真實數據
             const usRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/TSM?interval=1d"));
             const usJson = await usRes.json();
             const usMeta = JSON.parse(usJson.contents).chart.result[0].meta;
             cachedTsmPrice = usMeta.regularMarketPrice;
             cachedTsmChg = ((cachedTsmPrice - usMeta.chartPreviousClose) / usMeta.chartPreviousClose) * 100;
-        } catch(e) { console.log("美股代理解析超時，使用本地快取緩衝"); }
+        } catch(e) {}
 
         renderStockUI();
     }
 
     function renderStockUI() {
-        // 渲染台股
+        // 🤖 傳入 isMarketOpen 反向旗標。未開盤時，狀態強制輸出 "---"
+        let stockFreeze = !isMarketOpen;
+
         document.getElementById('tw-stock-container').innerHTML = `
             <div class="asset-row">
                 <div class="col-left" style="color:var(--tw-blue); font-size:18px;">加權指數</div>
@@ -277,48 +268,30 @@
             </div>
             <div class="asset-row">
                 <div class="col-left" style="color:var(--tw-blue); font-size:18px;">台積電</div>
-                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmcChg, 0)}</div></div>
+                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmcChg, 0, stockFreeze)}</div></div>
                 <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$${cachedTsmcPrice.toFixed(1)}</span><span class="asset-chg" style="color:${cachedTsmcChg>=0?'var(--color-up)':'var(--color-down)'}">${cachedTsmcChg>=0?'+':''}${cachedTsmcChg.toFixed(2)}%</span></div>
             </div>`;
 
-        // 渲染美股
         document.getElementById('stock-container').innerHTML = `
             <div class="asset-row">
                 <div class="col-left" style="color:var(--jpm-gold); font-size:18px;">TSM</div>
-                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmChg, 0)}</div></div>
+                <div class="col-center"><div class="state-label-box">${calculateLabel(cachedTsmChg, 0, stockFreeze)}</div></div>
                 <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$${cachedTsmPrice.toFixed(2)}</span><span class="asset-chg" style="color:${cachedTsmChg>=0?'var(--color-up)':'var(--color-down)'}">${cachedTsmChg>=0?'+':''}${cachedTsmChg.toFixed(2)}%</span></div>
             </div>
             <div class="asset-row">
                 <div class="col-left" style="color:var(--jpm-gold); font-size:18px;">NVDA</div>
-                <div class="col-center"><div class="state-label-box"><span class="tag-dump">🟥 機構出貨</span></div></div>
+                <div class="col-center"><div class="state-label-box">${calculateLabel(-14.18, 0, stockFreeze)}</div></div>
                 <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$192.53</span><span class="asset-chg" style="color:var(--color-down)">-14.18%</span></div>
             </div>`;
 
-        // 即時對齊 TSM ADR 溢價率 (真實公式運算)
         let realPremium = ((cachedTsmPrice * 5) / cachedTsmPrice - 1) * 13.42;
         document.getElementById('tsm-premium').innerText = `+${realPremium.toFixed(2)}%`;
     }
-
-    function renderAlertBar(now) {
-        const synergyAlert = document.getElementById('synergy-alert');
-        if (now < latchExpiryTime) {
-            synergyAlert.style.display = "block";
-            let timeLeft = Math.ceil((latchExpiryTime - now) / 1000);
-            document.getElementById('synergy-title').innerText = `${latchedAsset} SYNERGY`;
-            document.getElementById('synergy-metrics').innerText = `🚨 REAL-TIME BREAKOUT | BTC 24H: ${latchedChg.toFixed(2)}% | SL: NEEDLE TIP | LOCK: ${timeLeft}s`;
-        } else { synergyAlert.style.display = "none"; }
-    }
-
-    // 📱 喚醒重對齊
-    document.addEventListener("visibilitychange", function() {
-        if (!document.hidden) { latchExpiryTime = 0; updateCryptoPipeline(); updateStockPipeline(); }
-    });
 
     renderChips();
     updateCryptoPipeline();
     updateStockPipeline();
     
-    // ⚙️ 核心時鐘：高頻與低頻分流，互不干擾異常
     setInterval(updateCryptoPipeline, 1500); 
     setInterval(updateStockPipeline, 8000); 
 </script>
