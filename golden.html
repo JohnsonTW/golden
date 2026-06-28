@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v31.3</title>
+    <title>JPM Command Center v31.6 (WS Real-Time)</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -16,17 +16,12 @@
             --color-down: #f84444;
             --border-color: #21262d;
             --jpm-gold: #d4af37;
-            --oi-purple: #a855f7;
-            --tw-blue: #38bdf8;
         }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-title);
+            background-color: var(--bg-color); color: var(--text-title);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            margin: 0;
-            padding: calc(10px + env(safe-area-inset-top)) 12px 100px 12px;
-            -webkit-user-select: none;
-            box-sizing: border-box;
+            margin: 0; padding: calc(10px + env(safe-area-inset-top)) 12px 100px 12px;
+            -webkit-user-select: none; box-sizing: border-box;
         }
         .container { width: 100%; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
         .jpm-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; position: relative; }
@@ -34,7 +29,6 @@
         .jpm-title { font-size: 19px; font-weight: 800; margin: 2px 0; color: #f1f5f9; }
         
         .heartbeat-status { position: absolute; top: 12px; right: 8px; font-size: 11px; color: var(--color-up); font-weight: bold; display: flex; align-items: center; gap: 4px; }
-        .heartbeat-status.error { color: var(--color-down); }
 
         .synergy-alert-bar { display: none; background: #7f1d1d; border: 2px solid #ef4444; color: #fee2e2; border-radius: 6px; padding: 12px; margin-bottom: 10px; font-weight: 800; font-size: 14px; text-align: center; animation: danger-flash 0.5s infinite alternate; box-shadow: 0 0 15px rgba(239,68,68,0.5); }
         .synergy-details { font-size: 11px; font-weight: bold; color: #fca5a5; margin-top: 4px; font-family: monospace; }
@@ -44,19 +38,8 @@
         .panel-title { font-weight: bold; color: var(--jpm-gold); }
         .panel-value { font-family: monospace; font-size: 14px; font-weight: bold; }
 
-        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .status-hold { background: #22272e; color: #cbd5e1; }
-        .status-buy { background: #064e3b; color: #6ee7b7; }
+        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; background: #22272e; color: #cbd5e1; }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #161b22; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 10px 4px calc(10px + env(safe-area-inset-bottom)) 4px; z-index: 1000; box-sizing: border-box; }
-        .nav-item { color: var(--text-sub); font-size: 9.5px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; flex: 1; text-align: center; padding: 0; margin: 0; min-width: 0; }
-        .nav-item.active { color: var(--jpm-gold); }
-        .nav-icon { font-size: 17px; display: block; }
-
-        .group-title { font-size: 12px; font-weight: bold; color: var(--text-sub); margin: 14px 0 6px 2px; }
         .asset-list { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 0 10px; }
         .asset-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #21262d; }
         .asset-row:last-child { border-bottom: none; }
@@ -71,26 +54,6 @@
         .tag-pin { background: rgba(212, 175, 55, 0.15); color: var(--jpm-gold); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 13px; }
 
         .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
-
-        .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .power-bar-wrapper { height: 18px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
-        .power-long { background: var(--color-down); height: 100%; width: 50%; transition: width 0.3s ease; }
-        .power-short { background: var(--color-up); height: 100%; width: 50%; transition: width 0.3s ease; }
-        .power-text { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; box-sizing: border-box; font-size: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; font-family: monospace;}
-        .liq-log-list { max-height: 320px; overflow-y: auto; font-family: monospace; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
-        .liq-item { padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; font-weight: bold; }
-        .liq-long { background: rgba(248,68,68,0.12); color: var(--color-down); border-left: 3px solid var(--color-down); }
-        .liq-short { background: rgba(35,197,94,0.12); color: var(--color-up); border-left: 3px solid var(--color-up); }
-
-        .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
-        .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; min-width: 0; }
-        .config-input { width: 110px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; min-width: 0; }
-        .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
-        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; color: white; }
-        .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
-
         @keyframes danger-flash { from { background: #560f0f; border-color: #ef4444; } to { background: #991b1b; border-color: #f87171; } }
     </style>
 </head>
@@ -98,263 +61,157 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v31.3</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v31.6</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
-        <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
+        <div id="jpm-status-indicator" class="heartbeat-status" style="color:var(--color-down)">○ DISCONNECTED</div>
     </div>
 
     <div id="synergy-alert" class="synergy-alert-bar">
-        🏛️ <span id="synergy-title">SYSTEM</span> SYNERGY SIGNAL DETECTED
+        🏛️ <span id="synergy-title">SYSTEM</span> REAL-TIME WEBSOCKET SYNERGY
         <div id="synergy-metrics" class="synergy-details"></div>
     </div>
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">🎯 TSM ADR 溢價率 (台股即時錨定)</span>
-            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+13.42%</span>
+            <span class="panel-title">📡 數據管道模式</span>
+            <span class="panel-value" style="color:var(--jpm-gold)">Binance Official WebSocket (秒級)</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 網頁端實時清算流速</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">連線中...</span>
+            <span class="panel-title">⚡ 流速健康度斷言</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--text-sub)">正在與馬爾他機房建立握手...</span>
         </div>
     </div>
 
-    <div id="jpm-decision" class="jpm-conclusion status-hold">JPM WEB: HOLD / 籌碼沉澱橫盤期</div>
+    <div id="jpm-decision" class="jpm-conclusion">JPM ENGINE: STREAMING REAL-TIME DATA</div>
 
-    <div id="tab-crypto" class="tab-content active">
-        <div class="group-title">🪙 CRYPTO PERPETUALS (合約主力狀態監測)</div>
-        <div id="crypto-container" class="asset-list"></div>
-    </div>
-
-    <div id="tab-scanner" class="tab-content">
-        <div class="group-title">⚖️ 即時多空清算燃料對決</div>
-        <div class="bruco-metric">
-            <div class="power-bar-wrapper">
-                <div id="power-long-bar" class="power-long"></div>
-                <div id="power-short-bar" class="power-short"></div>
-                <div class="power-text">
-                    <span id="power-long-text">多頭爆: 50%</span>
-                    <span id="power-short-text">空頭軋: 50%</span>
-                </div>
-            </div>
-        </div>
-        <div class="group-title">🚨 即時逐筆大單爆倉流 (過濾 &ge; $5,000)</div>
-        <div class="bruco-metric">
-            <div id="liq-log" class="liq-log-list"></div>
-        </div>
-    </div>
-
-    <div id="tab-taiwan" class="tab-content">
-        <div class="group-title">🇹🇼 TAIWAN EQUITIES (台股主力狀態監測)</div>
-        <div id="tw-stock-container" class="asset-list"></div>
-    </div>
-
-    <div id="tab-stock" class="tab-content">
-        <div class="group-title">🇺🇸 US EQUITY STOCKS (美股主力狀態監測)</div>
-        <div id="stock-container" class="asset-list"></div>
-    </div>
-
-    <div id="tab-config" class="tab-content">
-        <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約看盤自訂</div>
-            <div class="config-input-group">
-                <select id="crypto-select" class="config-select">
-                    <option value="">-- 快速選擇合約 --</option>
-                    <option value="BTCUSDT">BTC (比特幣)</option>
-                    <option value="ETHUSDT">ETH (乙太幣)</option>
-                    <option value="SOLUSDT">SOL (索拉納)</option>
-                    <option value="SNDKUSDT">SNDK (閃迪)</option>
-                </select>
-                <input type="text" id="crypto-custom" class="config-input" placeholder="自訂代號">
-                <button class="config-btn" onclick="addAsset('crypto')">新增</button>
-            </div>
-            <div class="chip-list" id="crypto-chips"></div>
-        </div>
+    <div class="group-title">🪙 CRYPTO PERPETUALS (零延遲即時流速監測)</div>
+    <div id="crypto-container" class="asset-list">
+        <div id="row-BTCUSDT" class="asset-row"></div>
+        <div id="row-ETHUSDT" class="asset-row"></div>
+        <div id="row-SOLUSDT" class="asset-row"></div>
     </div>
 </div>
 
-<nav class="nav-bar">
-    <button class="nav-item active" id="btn-crypto" onclick="switchTab('crypto')">
-        <span class="nav-icon">🪙</span><span>合約</span>
-    </button>
-    <button class="nav-item" id="btn-scanner" onclick="switchTab('scanner')">
-        <span class="nav-icon">🚨</span><span>爆倉</span>
-    </button>
-    <button class="nav-item" id="btn-taiwan" onclick="switchTab('taiwan')">
-        <span class="nav-icon">🇹🇼</span><span>台股</span>
-    </button>
-    <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">
-        <span class="nav-icon">🇺🇸</span><span>美股</span>
-    </button>
-    <button class="nav-item" id="btn-config" onclick="switchTab('config')">
-        <span class="nav-icon">⚙️</span><span>設置</span>
-    </button>
-</nav>
-
 <script>
-    if (!localStorage.getItem('web_v313_flush')) { localStorage.clear(); localStorage.setItem('web_v313_flush', 'true'); }
+    if (!localStorage.getItem('web_v316_flush')) { localStorage.clear(); localStorage.setItem('web_v316_flush', 'true'); }
 
-    const BASE_DICT = {
-        "加權指數": { id: "加權指數", name: "加權指數", price: 44571.7, change: -1.69 },
-        "台積電": { id: "台積電", name: "台積電", price: 2340.0, change: -0.63 },
-        "鴻海": { id: "鴻海", name: "鴻海", price: 214.5, change: -0.45 },
-        "聯電": { id: "聯電", name: "聯電", price: 53.2, change: -0.20 },
-        "聯發科": { id: "聯發科", name: "聯發科", price: 3880.0, change: -14.81 }
+    let ws;
+    // 🧠 鎖定三個最具備機構流動性參考價值的核心永續合約
+    const ASSETS = {
+        "btcusdt": { symbol: "BTC", price: 0, change: 0, high: 0, low: 0 },
+        "ethusdt": { symbol: "ETH", price: 0, change: 0, high: 0, low: 0 },
+        "solusdt": { symbol: "SOL", price: 0, change: 0, high: 0, low: 0 }
     };
-    const US_DICT = { "TSM": { name: "TSM", price: 215.40, change: 1.45 }, "NVDA": { name: "NVDA", price: 192.53, change: -14.18 } };
 
-    let CRYPTOS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
-    let STOCKS = ["TSM", "NVDA"];
-    let TW_STOCKS = ["加權指數", "台積電", "鴻海"];
-
-    const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
-    let totalLongLiq = 50000; let totalShortLiq = 50000;
-    let currentLongPercent = 50;
-    let pinningAsset = ""; 
-    
-    let latchExpiryTime = 0; 
+    let latchExpiryTime = 0;
     let latchedAsset = "";
-    let latchedPercent = 0;
+    let latchedChg = 0;
 
-    let MASTER_DATA = {};
-    function syncMaster() {
-        Object.keys(BASE_DICT).forEach(k => { MASTER_DATA[k] = { name: BASE_DICT[k].name, price: BASE_DICT[k].price, change: BASE_DICT[k].change }; });
-        Object.keys(US_DICT).forEach(k => { MASTER_DATA[k] = { name: US_DICT[k].name, price: US_DICT[k].price, change: US_DICT[k].change }; });
+    function initWebSocket() {
+        // 📡 直連幣安永續合約官方實時全盤串流（Aggregated Ticker Stream）
+        const streamUrl = "wss://fstream.binance.com/ws/btcusdt@ticker/ethusdt@ticker/solusdt@ticker";
+        
+        ws = new WebSocket(streamUrl);
+
+        ws.onopen = () => {
+            document.getElementById('jpm-status-indicator').innerText = "● WS LIVE";
+            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
+            document.getElementById('global-liq-text').innerText = "🟢 數據管道已咬死盤口，零延遲監聽中";
+            document.getElementById('global-liq-text').style.color = "var(--color-up)";
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const streamName = data.s.toLowerCase(); // 例如 "ethusdt"
+            
+            if (ASSETS[streamName]) {
+                // 📝 幣安官方 Websocket 欄位解碼扣抵
+                ASSETS[streamName].price = parseFloat(data.c);      // c = 當前最新成交價 (Last Price)
+                ASSETS[streamName].change = parseFloat(data.P);     // P = 24h 價格漲跌幅百分比 (Price Change Percent)
+                ASSETS[streamName].high = parseFloat(data.h);       // h = 24h 最高價
+                ASSETS[streamName].low = parseFloat(data.l);        // l = 24h 最低價
+                
+                renderAssetRow(streamName);
+                checkSynergyLogic();
+            }
+        };
+
+        ws.onclose = () => {
+            document.getElementById('jpm-status-indicator').innerText = "⚠️ WS LOST";
+            document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
+            document.getElementById('global-liq-text').innerText = "🔴 連線中斷，3秒後後端硬核自動重連...";
+            document.getElementById('global-liq-text').style.color = "var(--color-down)";
+            setTimeout(initWebSocket, 3000); // 💥 自動斷線重連機制（Failover）
+        };
+
+        ws.onerror = () => { ws.close(); };
     }
-    syncMaster();
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        document.getElementById('btn-' + tabId).classList.add('active');
-    }
+    function renderAssetRow(key) {
+        const item = ASSETS[key];
+        const rowEl = document.getElementById(`row-${key.toUpperCase()}`);
+        if (!rowEl) return;
 
-    function generateLiveLog() {
-        const log = document.getElementById('liq-log');
-        if (!log || CRYPTOS.length === 0) return;
-        const sym = CRYPTOS[Math.floor(Math.random() * CRYPTOS.length)];
-        
-        let isLong = Math.random() > 0.35; 
-        const amt = Math.floor(Math.random() * 95000 + 5000);
-        
-        if (isLong) totalLongLiq += amt; else totalShortLiq += amt;
-        let total = totalLongLiq + totalShortLiq;
-        currentLongPercent = parseInt(((totalLongLiq / total) * 100).toFixed(0));
-        let shortPercent = (100 - currentLongPercent);
-        
-        if (document.getElementById('power-long-bar')) {
-            document.getElementById('power-long-bar').style.width = currentLongPercent + "%";
-            document.getElementById('power-short-bar').style.width = shortPercent + "%";
-            document.getElementById('power-long-text').innerText = `🔴 多頭爆倉: ${currentLongPercent}%`;
-            document.getElementById('power-short-text').innerText = `🟢 空頭軋空: ${shortPercent}%`;
+        let centerContentHtml = "---";
+        // 🔬 基於即時流速震幅的純淨實盤硬斷言（無任何編造數據）
+        let amplitude = item.low > 0 ? ((item.high - item.low) / item.low) * 100 : 0;
+
+        if (item.change > 3.5) {
+            centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
+        } else if (item.change < -4.5) {
+            centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
+        } else if (amplitude > 5.0 && item.change < -0.1) {
+            // 🎯 真實世界條件：只有當該幣當天發生劇烈大洗盤（震幅突破5%）且目前價格被打壓時，才觸發插針標籤
+            centerContentHtml = `<span class="tag-pin">🟧 插針反彈</span>`;
         }
 
-        const item = document.createElement('div');
-        item.className = `liq-item ${isLong ? 'liq-long' : 'liq-short'}`;
-        item.innerHTML = `<span>${sym.replace("USDT","")} ${isLong?'💥 多頭爆倉':'⚡ 空頭軋空'}</span><span>$${amt.toLocaleString()}</span>`;
-        log.prepend(item);
-        if(log.children.length > 8) log.lastChild.remove();
-        document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${(Math.random() * 3 + 1.2).toFixed(2)}M)`;
+        rowEl.innerHTML = `
+            <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${item.symbol}</span></div>
+            <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
+            <div class="col-right">
+                <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${item.price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                <span class="asset-chg" style="color:${item.change>=0?'var(--color-up)':'var(--color-down)'}">${item.change>=0?'+':''}${item.change.toFixed(2)}%</span>
+            </div>
+        `;
+    }
 
+    function checkSynergyLogic() {
         const now = Date.now();
-        const synergyAlert = document.getElementById('synergy-alert');
         
-        if (pinningAsset && currentLongPercent >= 71) {
-            latchExpiryTime = now + 15000; 
-            latchedAsset = pinningAsset;
-            latchedPercent = currentLongPercent;
+        // 🎯 100% 實盤共振硬條件：
+        // 當 ETH 當天振幅大於 5.5% (代表大洗盤發生)，且在當前秒級流速中，BTC 同步出現恐慌砸盤 (24h跌幅超2%)
+        // 這代表跨市場空頭踩踏共振正在發生！
+        let ethAmp = (ASSETS["ethusdt"].high - ASSETS["ethusdt"].low) / ASSETS["ethusdt"].low * 100;
+        let btcChg = ASSETS["btcusdt"].change;
+
+        if (ethAmp > 5.5 && btcChg < -2.0) {
+            latchExpiryTime = now + 15000;
+            latchedAsset = "ETH/BTC CORE";
+            latchedChg = btcChg;
         }
 
+        const synergyAlert = document.getElementById('synergy-alert');
         if (now < latchExpiryTime) {
             synergyAlert.style.display = "block";
             let timeLeft = Math.ceil((latchExpiryTime - now) / 1000);
-            document.getElementById('synergy-title').innerText = `${latchedAsset} SYNERGY`;
-            document.getElementById('synergy-metrics').innerText = `CRITERIA MET: ${latchedAsset} PINBAR + LONG LIQ AT ${latchedPercent}% | SL: NEEDLE TIP | LOCK TIME: ${timeLeft}s`;
+            document.getElementById('synergy-title').innerText = `${latchedAsset} CO-RESONANCE`;
+            document.getElementById('synergy-metrics').innerText = `🚨 CRITERIA MET: MARKET CASCADE DETECTED | BTC CHG: ${latchedChg.toFixed(2)}% | SL: NEEDLE TIP | LOCK: ${timeLeft}s`;
         } else {
             synergyAlert.style.display = "none";
         }
     }
 
-    async function updateWebTerminal() {
-        try {
-            let cryptoHtml = ""; let upCount = 0;
-            pinningAsset = ""; 
-
-            const cryptoRes = await fetch(BINANCE_API);
-            if(!cryptoRes.ok) throw new Error();
-            const cryptoData = await cryptoRes.json();
-            document.getElementById('jpm-status-indicator').innerText = "● LIVE";
-            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
-
-            for(let sym of CRYPTOS) {
-                let item = cryptoData.find(d => d.symbol === sym);
-                let price = item ? parseFloat(item.lastPrice) : 0;
-                let change = item ? parseFloat(item.priceChangePercent) : 0;
-                
-                let centerContentHtml = "";
-                if (change > 3.0 || sym.includes("SOL")) {
-                    centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
-                    upCount++;
-                } else if (change < -4.0 || sym.includes("SNDK")) {
-                    centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
-                } else if (sym.includes("ETH") || change > 1.2) {
-                    centerContentHtml = `<span class="tag-pin">🟧 插針反彈</span>`;
-                    pinningAsset = sym.replace("USDT",""); 
-                } else {
-                    centerContentHtml = `---`;
-                }
-
-                cryptoHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${sym.replace("USDT","")}</span></div>
-                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
-                        <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
-                            <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
-            }
-            document.getElementById('crypto-container').innerHTML = cryptoHtml;
-
-            let twHtml = "";
-            for(let key of TW_STOCKS) {
-                let cache = MASTER_DATA[key];
-                let centerContentHtml = "---";
-                if (key === "台積電") centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
-                twHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="color:var(--tw-blue); font-size: 18px !important; font-weight: bold;">${cache.name}</span></div>
-                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
-                        <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">${cache.name=='加權指數'?'':'$'}${cache.price.toLocaleString(undefined, {maximumFractionDigits:1})}</span>
-                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
-            }
-            document.getElementById('tw-stock-container').innerHTML = twHtml;
-
-            const dec = document.getElementById('jpm-decision');
-            if(upCount >= 2) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
-            else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
-        } catch (e) {
-            document.getElementById('jpm-status-indicator').innerText = "⚠️ SIGNAL LOST";
-            document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
-        }
-    }
-
-    // 🧠 核心破關：監聽手機解鎖、重開分頁事件，強制刷新防凍結！
+    // 📱 手機後台切換防凍結：只要回到網頁，強制斷開舊 WS 並秒速重連，確保數據百分之百新鮮！
     document.addEventListener("visibilitychange", function() {
         if (!document.hidden) {
-            console.log("📱 手機解鎖喚醒！強制重對齊最新數據...");
-            document.getElementById('jpm-status-indicator').innerText = "🔄 WAKING UP...";
-            updateWebTerminal();
+            latchExpiryTime = 0;
+            document.getElementById('synergy-alert').style.display = "none";
+            if (ws) { ws.close(); }
         }
     });
 
-    updateWebTerminal();
-    setInterval(updateWebTerminal, 3000); 
-    setInterval(generateLiveLog, 1000);
+    // 🚀 啟動引擎
+    initWebSocket();
 </script>
 </body>
 </html>
