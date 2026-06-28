@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v32.9</title>
+    <title>JPM Command Center v33.0</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -75,16 +75,16 @@
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">🎯 TSM ADR 溢價率 (真錢數據對齊)</span>
-            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">校準中...</span>
+            <span class="panel-title">🎯 TSM ADR 溢價率 (純前端即時校準)</span>
+            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">計算中...</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
             <span class="panel-title">📡 數據管道模式</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">Stooq High-Availability Pipeline (加密 1.5s / 股權 8s)</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">高容錯完全隔離管道 (非阻塞渲染)</span>
         </div>
     </div>
 
-    <div id="jpm-decision" class="jpm-conclusion">JPM PRODUCTION ENGINE: OK</div>
+    <div id="jpm-decision" class="jpm-conclusion">JPM ENGINE v33.0: READY</div>
 
     <div id="tab-crypto" class="tab-content active">
         <div class="group-title">🪙 CRYPTO PERPETUALS (1.5秒級高頻實盤流速監測)</div>
@@ -92,12 +92,12 @@
     </div>
 
     <div id="tab-taiwan" class="tab-content">
-        <div class="group-title">🇹🇼 TAIWAN EQUITIES (100% 全實盤無假數據)</div>
+        <div class="group-title">🇹🇼 TAIWAN EQUITIES (全防護異步渲染)</div>
         <div id="tw-stock-container" class="asset-list"></div>
     </div>
 
     <div id="tab-stock" class="tab-content">
-        <div class="group-title">🇺🇸 US EQUITY STOCKS (100% 全實盤無假數據)</div>
+        <div class="group-title">🇺🇸 US EQUITY STOCKS (全防護異步渲染)</div>
         <div id="stock-container" class="asset-list"></div>
     </div>
 
@@ -110,7 +110,7 @@
             </div>
             <div class="chip-list" id="crypto-chips"></div>
 
-            <div class="group-title" style="margin-top:15px; color:var(--tw-blue)">🇹🇼 自訂監控台股代號 (純數字)</div>
+            <div class="group-title" style="margin-top:15px; color:var(--tw-blue)">🇹🇼 自訂監控台股代號</div>
             <div class="config-input-group">
                 <input type="text" id="tw-custom" class="config-input" placeholder="例如: 2330 或 2317">
                 <button class="config-btn" style="background:var(--tw-blue); color:white;" onclick="addAsset('tw')">新增</button>
@@ -152,7 +152,7 @@
     let US_STOCKS = JSON.parse(localStorage.getItem('cfg_us_stocks'));
 
     let isMarketOpen = false;
-    let ADR_TSM_PRICE = 215.40; let ADR_TSMC_PRICE = 2340.0;
+    let ADR_TSM_PRICE = 0; let ADR_TSMC_PRICE = 0;
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -223,28 +223,25 @@
         } catch (e) {}
     }
 
-    // 📡 獨立底層封裝：直連 100% 開放無 CORS 限制、不需 Key 的 Stooq 生產級資料源
-    async function fetchStooqData(symbol, isUS = true) {
+    // 📡 乾淨無阻擋全新 HTTP 實盤網關（回傳乾淨、標準的 JSON 結構，100% 避免字串切割錯誤）
+    async function fetchCleanStock(symbol, isUS = true) {
         try {
-            // 轉化為 Stooq 標準 Ticker 格式
-            let stooqTicker = isUS ? `${symbol}.US` : `${symbol}.TW`;
+            let target = isUS ? symbol : `${symbol}.TW`;
+            // 使用對純前端完全無 CORS 封鎖、且結構極度穩定的財經資料鏡像端點
+            const res = await fetch(`https://api.allorigins.win/get?url=` + encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${target}`));
+            if(!res.ok) return { price: 0, change: 0, success: false };
             
-            // 🧠 透過 CORS 鏡像直連 Stooq 純淨 CSV/JSON 轉換端點
-            const res = await fetch(`https://api.allorigins.win/get?url=` + encodeURIComponent(`https://stooq.com/q/l/?s=${stooqTicker}&f=sd2t2ohlcv&e=json`));
-            if(!res.ok) throw new Error();
             const raw = await res.json();
+            const obj = JSON.parse(raw.contents);
+            const result = obj.quoteResponse.result[0];
             
-            // 解析 Stooq 格式
-            const lines = raw.contents.split('\n');
-            if(lines.length < 2) return { price: 0, change: 0, success: false };
+            if(!result) return { price: 0, change: 0, success: false };
             
-            const dataRow = lines[1].split(',');
-            let price = parseFloat(dataRow[3]); // Close Price
-            let open = parseFloat(dataRow[2]);  // Open Price
-            let change = open > 0 ? ((price - open) / open) * 100 : 0;
-
-            if (isNaN(price) || price === 0) return { price: 0, change: 0, success: false };
-            return { price, change, success: true };
+            return {
+                price: result.regularMarketPrice,
+                change: result.regularMarketChangePercent,
+                success: true
+            };
         } catch(e) {
             return { price: 0, change: 0, success: false };
         }
@@ -255,54 +252,79 @@
         isMarketOpen = (day >= 1 && day <= 5) && ((hr >= 9 && hr <= 14) || (hr >= 21 || hr <= 4));
         let stockFreeze = !isMarketOpen;
 
-        // 1. 執行並發隔離台股管道
+        // 1. 渲染台股頁面 (每一檔都包裹 try-catch 獨立沙盒，絕不因單點崩潰導致全頁黑屏)
         let twHtml = "";
         for(let sym of TW_STOCKS) {
-            if (sym === "加權指數") continue; // 排除不相容的大盤寬幅
-            let data = await fetchStooqData(sym, false);
             let dispName = sym === "2330" ? "台積電" : (sym === "2317" ? "鴻海" : (sym === "2454" ? "聯發科" : `股號 ${sym}`));
-            if(sym === "2330" && data.success) ADR_TSMC_PRICE = data.price;
+            let priceText = "載入中...", changeText = "--%", changeColor = "var(--text-sub)", labelHtml = "---";
             
-            if (data.success) {
-                twHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="color:var(--tw-blue); font-size:18px; font-weight:bold;">${dispName}</span></div>
-                        <div class="col-center"><div class="state-label-box">${calculateLabel(data.change, 0, stockFreeze)}</div></div>
-                        <div class="col-right">
-                            <span style="font-size:18px; font-weight:bold; font-family:monospace;">$${data.price.toLocaleString(undefined,{maximumFractionDigits:1})}</span>
-                            <span class="asset-chg" style="color:${data.change>=0?'var(--color-up)':'var(--color-down)'}">${data.change>=0?'+':''}${data.change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
+            try {
+                let data = await fetchCleanStock(sym, false);
+                if(sym === "2330" && data.success) ADR_TSMC_PRICE = data.price;
+                
+                if(data.success && data.price > 0) {
+                    priceText = `$${data.price.toLocaleString(undefined, {maximumFractionDigits:1})}`;
+                    changeText = `${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%`;
+                    changeColor = data.change >= 0 ? 'var(--color-up)' : 'var(--color-down)';
+                    labelHtml = calculateLabel(data.change, 0, stockFreeze);
+                } else {
+                    priceText = "連線暫歇";
+                }
+            } catch(err) {
+                priceText = "異常隔離";
             }
-        }
-        if(twHtml) document.getElementById('tw-stock-container').innerHTML = twHtml;
 
-        // 2. 執行並發隔離美股管道
+            twHtml += `
+                <div class="asset-row">
+                    <div class="col-left"><span style="color:var(--tw-blue); font-size:18px; font-weight:bold;">${dispName}</span></div>
+                    <div class="col-center"><div class="state-label-box">${labelHtml}</div></div>
+                    <div class="col-right">
+                        <span style="font-size:18px; font-weight:bold; font-family:monospace;">${priceText}</span>
+                        <span class="asset-chg" style="color:${changeColor}">${changeText}</span>
+                    </div>
+                </div>`;
+        }
+        document.getElementById('tw-stock-container').innerHTML = twHtml;
+
+        // 2. 渲染美股頁面 (獨立沙盒防禦)
         let usHtml = "";
         for(let sym of US_STOCKS) {
-            let data = await fetchStooqData(sym, true);
-            if(sym === "TSM" && data.success) ADR_TSM_PRICE = data.price;
+            let priceText = "載入中...", changeText = "--%", changeColor = "var(--text-sub)", labelHtml = "---";
             
-            if (data.success) {
-                usHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="color:var(--jpm-gold); font-size:18px; font-weight:bold;">${sym}</span></div>
-                        <div class="col-center"><div class="state-label-box">${calculateLabel(data.change, 0, stockFreeze)}</div></div>
-                        <div class="col-right">
-                            <span style="font-size:18px; font-weight:bold; font-family:monospace;">$${data.price.toLocaleString(undefined,{maximumFractionDigits:2})}</span>
-                            <span class="asset-chg" style="color:${data.change>=0?'var(--color-up)':'var(--color-down)'}">${data.change>=0?'+':''}${data.change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
+            try {
+                let data = await fetchCleanStock(sym, true);
+                if(sym === "TSM" && data.success) ADR_TSM_PRICE = data.price;
+                
+                if(data.success && data.price > 0) {
+                    priceText = `$${data.price.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+                    changeText = `${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%`;
+                    changeColor = data.change >= 0 ? 'var(--color-up)' : 'var(--color-down)';
+                    labelHtml = calculateLabel(data.change, 0, stockFreeze);
+                } else {
+                    priceText = "連線暫歇";
+                }
+            } catch(err) {
+                priceText = "異常隔離";
             }
-        }
-        if(usHtml) document.getElementById('stock-container').innerHTML = usHtml;
 
-        // 3. 真實計量溢價連動
+            usHtml += `
+                <div class="asset-row">
+                    <div class="col-left"><span style="color:var(--jpm-gold); font-size:18px; font-weight:bold;">${sym}</span></div>
+                    <div class="col-center"><div class="state-label-box">${labelHtml}</div></div>
+                    <div class="col-right">
+                        <span style="font-size:18px; font-weight:bold; font-family:monospace;">${priceText}</span>
+                        <span class="asset-chg" style="color:${changeColor}">${changeText}</span>
+                    </div>
+                </div>`;
+        }
+        document.getElementById('stock-container').innerHTML = usHtml;
+
+        // 3. 計算即時 ADR 溢價
         if (ADR_TSM_PRICE > 0 && ADR_TSMC_PRICE > 0) {
             let realPremium = ((ADR_TSM_PRICE * 5) / ADR_TSMC_PRICE) * 100 - 100;
             document.getElementById('tsm-premium').innerText = `${realPremium >= 0 ? '+' : ''}${realPremium.toFixed(2)}%`;
         } else {
-            document.getElementById('tsm-premium').innerText = `+13.42% (生產快取鎖定)`;
+            document.getElementById('tsm-premium').innerText = "等待美/台股報價同步...";
         }
     }
 
@@ -310,7 +332,7 @@
     updateCryptoPipeline();
     updateStockPipeline();
     setInterval(updateCryptoPipeline, 1500);
-    setInterval(updateStockPipeline, 8000);
+    setInterval(updateStockPipeline, 10000); // 延長到10秒一次，避免觸發代理頻率限制
 </script>
 </body>
 </html>
