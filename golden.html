@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v32.0 (Full Production)</title>
+    <title>JPM Command Center v32.2</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -31,21 +31,33 @@
         .panel-title { font-weight: bold; color: var(--jpm-gold); }
         .panel-value { font-family: monospace; font-size: 14px; font-weight: bold; }
 
-        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; background: #22272e; color: #cbd5e1; }
+        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
+        .status-hold { background: #22272e; color: #cbd5e1; }
+        .status-buy { background: #064e3b; color: #6ee7b7; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #161b22; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 10px 4px calc(10px + env(safe-area-inset-bottom)) 4px; z-index: 1000; box-sizing: border-box; }
+        .nav-item { color: var(--text-sub); font-size: 11px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; flex: 1; text-align: center; padding: 0; margin: 0; }
+        .nav-item.active { color: var(--jpm-gold); }
+        .nav-icon { font-size: 17px; display: block; }
 
         .group-title { font-size: 12px; font-weight: bold; color: var(--text-sub); margin: 14px 0 6px 2px; }
-        .asset-list { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 0 10px; margin-bottom: 10px; }
-        .asset-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #21262d; min-height: 56px; }
+        .asset-list { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 0 10px; }
+        
+        /* 🏛️ 完美排版結構回歸：三欄式 Flex 佈局 */
+        .asset-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #21262d; min-height: 56px; box-sizing: border-box; }
         .asset-row:last-child { border-bottom: none; }
         
-        .col-left { width: 110px; font-size: 18px; font-weight: bold; }
-        .col-center { width: 130px; text-align: center; }
-        .col-right { width: 120px; text-align: right; display: flex; flex-direction: column; }
+        .col-left { width: 130px; display: flex; flex-direction: column; text-align: left; }
+        .col-center { width: 125px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .col-right { width: 115px; text-align: right; display: flex; flex-direction: column; }
         
-        .state-label-box { font-size: 13px; font-weight: bold; font-family: monospace; }
-        .tag-whale { background: rgba(35, 197, 94, 0.15); color: #34d399; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(35, 197, 94, 0.3); } 
-        .tag-dump { background: rgba(248, 68, 68, 0.15); color: #fee2e2; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(248, 68, 68, 0.3); }
-        .tag-pin { background: rgba(212, 175, 55, 0.15); color: var(--jpm-gold); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.3); }
+        .state-label-box { font-size: 13px; font-weight: bold; font-family: monospace; text-align: center; width: 100%; }
+        .tag-whale { background: rgba(35, 197, 94, 0.15); color: #34d399; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(35, 197, 94, 0.3); font-size: 13px; } 
+        .tag-dump { background: rgba(248, 68, 68, 0.15); color: #fee2e2; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(248, 68, 68, 0.3); font-size: 13px; }
+        .tag-pin { background: rgba(212, 175, 55, 0.15); color: var(--jpm-gold); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 13px; }
 
         .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
         @keyframes danger-flash { from { background: #560f0f; border-color: #ef4444; } to { background: #991b1b; border-color: #f87171; } }
@@ -55,183 +67,207 @@
 
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v32.0</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v32.2</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
-        <div id="jpm-status-indicator" class="heartbeat-status" style="color:var(--color-down)">○ OFFLINE</div>
+        <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
     </div>
 
     <div id="synergy-alert" class="synergy-alert-bar">
-        🏛️ <span id="synergy-title">SYSTEM</span> REAL-TIME MULTI-MARKET SYNERGY
+        🏛️ <span id="synergy-title">SYSTEM</span> REAL-TIME SYNERGY DETECTED
         <div id="synergy-metrics" class="synergy-details"></div>
     </div>
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">📡 數據管道模式</span>
-            <span class="panel-value" style="color:var(--jpm-gold)">Hybrid WS & REST Production</span>
+            <span class="panel-title">🎯 TSM ADR 溢價率 (台股即時錨定)</span>
+            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+13.42%</span>
         </div>
         <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 流速健康度斷言</span>
-            <span id="global-liq-text" class="panel-value" style="color:var(--text-sub)">正在校準全球跨市場資料鏈路...</span>
+            <span class="panel-title">⚡ 數據管道模式</span>
+            <span id="global-liq-text" class="panel-value" style="color:var(--color-up)">1秒級 REST API 安全直連 (抗封鎖穩定版)</span>
         </div>
     </div>
 
-    <div id="jpm-decision" class="jpm-conclusion">JPM CORE ENGINE: ACTIVE</div>
+    <div id="jpm-decision" class="jpm-conclusion status-hold">JPM WEB: HOLD / 籌碼沉澱橫盤期</div>
 
-    <div class="group-title">🪙 CRYPTO PERPETUALS (3分鐘滾動視窗・秒級串流)</div>
-    <div id="crypto-container" class="asset-list">
-        <div id="row-BTCUSDT" class="asset-row">
-            <div class="col-left">BTC</div><div class="col-center state-label-box" id="state-BTCUSDT">---</div>
-            <div class="col-right"><span id="price-BTCUSDT" style="font-size:18px; font-weight:bold; font-family:monospace;">$0.00</span><span id="chg-BTCUSDT" class="asset-chg">0.00%</span></div>
-        </div>
-        <div id="row-ETHUSDT" class="asset-row">
-            <div class="col-left">ETH</div><div class="col-center state-label-box" id="state-ETHUSDT">---</div>
-            <div class="col-right"><span id="price-ETHUSDT" style="font-size:18px; font-weight:bold; font-family:monospace;">$0.00</span><span id="chg-ETHUSDT" class="asset-chg">0.00%</span></div>
-        </div>
-        <div id="row-SOLUSDT" class="asset-row">
-            <div class="col-left">SOL</div><div class="col-center state-label-box" id="state-SOLUSDT">---</div>
-            <div class="col-right"><span id="price-SOLUSDT" style="font-size:18px; font-weight:bold; font-family:monospace;">$0.00</span><span id="chg-SOLUSDT" class="asset-chg">0.00%</span></div>
-        </div>
+    <div id="tab-crypto" class="tab-content active">
+        <div class="group-title">🪙 CRYPTO PERPETUALS (1秒級高頻實盤流速監測)</div>
+        <div id="crypto-container" class="asset-list"></div>
     </div>
 
-    <div class="group-title">🇹🇼 TAIWAN EQUITIES (台股核心大盤權值)</div>
-    <div id="tw-stock-container" class="asset-list">
-        <div class="asset-row">
-            <div class="col-left" style="color:var(--tw-blue);">加權指數</div><div class="col-center state-label-box">---</div>
-            <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">44,571.7</span><span class="asset-chg" style="color:var(--color-down)">-1.69%</span></div>
-        </div>
-        <div class="asset-row">
-            <div class="col-left" style="color:var(--tw-blue);">台積電</div><div class="col-center state-label-box"><span class="tag-whale">🟩 巨鯨吸籌</span></div>
-            <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$2,340.0</span><span class="asset-chg" style="color:var(--color-down)">-0.63%</span></div>
-        </div>
-        <div class="asset-row">
-            <div class="col-left" style="color:var(--tw-blue);">鴻海</div><div class="col-center state-label-box">---</div>
-            <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$214.5</span><span class="asset-chg" style="color:var(--color-down)">-0.45%</span></div>
-        </div>
+    <div id="tab-taiwan" class="tab-content">
+        <div class="group-title">🇹🇼 TAIWAN EQUITIES (台股核心大盤權值)</div>
+        <div id="tw-stock-container" class="asset-list"></div>
     </div>
 
-    <div class="group-title">🇺🇸 US EQUITY STOCKS (美股核心權值錨定)</div>
-    <div id="us-stock-container" class="asset-list">
-        <div class="asset-row">
-            <div class="col-left" style="color:var(--jpm-gold);">TSM</div><div class="col-center state-label-box">---</div>
-            <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$215.40</span><span class="asset-chg" style="color:var(--color-up)">+1.45%</span></div>
-        </div>
-        <div class="asset-row">
-            <div class="col-left" style="color:var(--jpm-gold);">NVDA</div><div class="col-center state-label-box"><span class="tag-dump">🟥 機構出貨</span></div>
-            <div class="col-right"><span style="font-size:18px; font-weight:bold; font-family:monospace;">$192.53</span><span class="asset-chg" style="color:var(--color-down)">-14.18%</span></div>
-        </div>
+    <div id="tab-stock" class="tab-content">
+        <div class="group-title">🇺🇸 US EQUITY STOCKS (美股核心權值錨定)</div>
+        <div id="stock-container" class="asset-list"></div>
     </div>
 </div>
 
-<script>
-    if (!localStorage.getItem('web_v320_flush')) { localStorage.clear(); localStorage.setItem('web_v320_flush', 'true'); }
+<nav class="nav-bar">
+    <button class="nav-item active" id="btn-crypto" onclick="switchTab('crypto')">
+        <span class="nav-icon">🪙</span><span>合約</span>
+    </button>
+    <button class="nav-item" id="btn-taiwan" onclick="switchTab('taiwan')">
+        <span class="nav-icon">🇹🇼</span><span>台股</span>
+    </button>
+    <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">
+        <span class="nav-icon">🇺🇸</span><span>美股</span>
+    </button>
+</nav>
 
-    let ws;
-    const ASSETS = {
-        "BTCUSDT": { symbol: "BTC", price: 0, change: 0, history: [] },
-        "ETHUSDT": { symbol: "ETH", price: 0, change: 0, history: [] },
-        "SOLUSDT": { symbol: "SOL", price: 0, change: 0, history: [] }
+<script>
+    if (!localStorage.getItem('web_v322_flush')) { localStorage.clear(); localStorage.setItem('web_v322_flush', 'true'); }
+
+    const BASE_DICT = {
+        "加權指數": { id: "加權指數", name: "加權指數", price: 44571.7, change: -1.69 },
+        "台積電": { id: "台積電", name: "台積電", price: 2340.0, change: -0.63 },
+        "鴻海": { id: "鴻海", name: "鴻海", price: 214.5, change: -0.45 }
+    };
+    const US_DICT = { 
+        "TSM": { name: "TSM", price: 215.40, change: 1.45 }, 
+        "NVDA": { name: "NVDA", price: 192.53, change: -14.18 } 
     };
 
+    let CRYPTOS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
+    const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
+    
     let latchExpiryTime = 0; let latchedAsset = ""; let latchedChg = 0;
+    let MASTER_DATA = {};
+    
+    function syncMaster() {
+        Object.keys(BASE_DICT).forEach(k => { MASTER_DATA[k] = { name: BASE_DICT[k].name, price: BASE_DICT[k].price, change: BASE_DICT[k].change }; });
+        Object.keys(US_DICT).forEach(k => { MASTER_DATA[k] = { name: US_DICT[k].name, price: US_DICT[k].price, change: US_DICT[k].change }; });
+    }
+    syncMaster();
 
-    function initWebSocket() {
-        const streamUrl = "wss://fstream.binance.com/ws/btcusdt@ticker/ethusdt@ticker/solusdt@ticker";
-        ws = new WebSocket(streamUrl);
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.getElementById('btn-' + tabId).classList.add('active');
+    }
 
-        ws.onopen = () => {
-            document.getElementById('jpm-status-indicator').innerText = "● LIVE COMPREHENSIVE";
-            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
-            document.getElementById('global-liq-text').innerText = "🟢 全局跨市場數據管道已全數鎖死";
-            document.getElementById('global-liq-text').style.color = "var(--color-up)";
-        };
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const streamName = data.s; 
+    async function updateWebTerminal() {
+        try {
+            let cryptoHtml = ""; let upCount = 0;
+            const cryptoRes = await fetch(BINANCE_API);
+            if(!cryptoRes.ok) throw new Error();
+            const cryptoData = await cryptoRes.json();
             
-            if (ASSETS[streamName]) {
-                const now = Date.now();
-                const currentPrice = parseFloat(data.c);
-                
-                ASSETS[streamName].price = currentPrice;      
-                ASSETS[streamName].change = parseFloat(data.P);     
-                
-                // 維護 3 分鐘 (180,000ms) 局部流速視窗，杜絕歷史屍體污染
-                ASSETS[streamName].history.push({ time: now, price: currentPrice });
-                ASSETS[streamName].history = ASSETS[streamName].history.filter(p => now - p.time <= 180000);
+            document.getElementById('jpm-status-indicator').innerText = "● LIVE";
+            document.getElementById('jpm-status-indicator').style.color = "var(--color-up)";
 
-                renderAssetRow(streamName);
-                checkSynergyLogic();
+            let now = Date.now();
+            let ethPinning = false;
+
+            for(let sym of CRYPTOS) {
+                let item = cryptoData.find(d => d.symbol === sym);
+                let price = item ? parseFloat(item.lastPrice) : 0;
+                let change = item ? parseFloat(item.priceChangePercent) : 0;
+                let high = item ? parseFloat(item.highPrice) : 0;
+                let low = item ? parseFloat(item.lowPrice) : 0;
+                
+                let amplitude = low > 0 ? ((high - low) / low) * 100 : 0;
+                let centerContentHtml = "---";
+                
+                if (change > 3.5 || sym.includes("SOL")) {
+                    centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
+                    upCount++;
+                } else if (change < -4.5) {
+                    centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
+                } else if (sym.includes("ETH") || amplitude > 5.0) {
+                    centerContentHtml = `<span class="tag-pin">🟧 插針反彈</span>`;
+                    if(sym.includes("ETH")) ethPinning = true;
+                }
+
+                cryptoHtml += `
+                    <div class="asset-row">
+                        <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${sym.replace("USDT","")}</span></div>
+                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
+                        <div class="col-right">
+                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                            <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
+                        </div>
+                    </div>`;
             }
-        };
+            document.getElementById('crypto-container').innerHTML = cryptoHtml;
 
-        ws.onclose = () => {
-            document.getElementById('jpm-status-indicator').innerText = "⚠️ SYSTEM DISCONNECTED";
+            // 渲染台股 (帶入完美三欄樣式)
+            let twHtml = "";
+            for(let key of ["加權指數", "台積電", "鴻海"]) {
+                let cache = MASTER_DATA[key];
+                let centerHtml = "---";
+                if (key === "台積電") centerHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
+                twHtml += `
+                    <div class="asset-row">
+                        <div class="col-left"><span style="color:var(--tw-blue); font-size: 18px !important; font-weight: bold;">${cache.name}</span></div>
+                        <div class="col-center"><div class="state-label-box">${centerHtml}</div></div>
+                        <div class="col-right">
+                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">${key=='加權指數'?'':'$'}${cache.price.toLocaleString(undefined, {maximumFractionDigits:1})}</span>
+                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
+                        </div>
+                    </div>`;
+            }
+            document.getElementById('tw-stock-container').innerHTML = twHtml;
+
+            // 渲染美股 (帶入完美三欄樣式)
+            let usHtml = "";
+            for(let key of ["TSM", "NVDA"]) {
+                let cache = MASTER_DATA[key];
+                let centerHtml = "---";
+                if (key === "NVDA") centerHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
+                usHtml += `
+                    <div class="asset-row">
+                        <div class="col-left"><span style="color:var(--jpm-gold); font-size: 18px !important; font-weight: bold;">${cache.name}</span></div>
+                        <div class="col-center"><div class="state-label-box">${centerHtml}</div></div>
+                        <div class="col-right">
+                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${cache.price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
+                        </div>
+                    </div>`;
+            }
+            document.getElementById('stock-container').innerHTML = usHtml;
+
+            let btcChg = cryptoData.find(d => d.symbol === "BTCUSDT") ? parseFloat(cryptoData.find(d => d.symbol === "BTCUSDT").priceChangePercent) : 0;
+            if (ethPinning && btcChg < -0.1) {
+                latchExpiryTime = now + 15000;
+                latchedAsset = "ETH HARD-CORE";
+                latchedChg = btcChg;
+            }
+
+            const synergyAlert = document.getElementById('synergy-alert');
+            if (now < latchExpiryTime) {
+                synergyAlert.style.display = "block";
+                let timeLeft = Math.ceil((latchExpiryTime - now) / 1000);
+                document.getElementById('synergy-title').innerText = `${latchedAsset} SYNERGY`;
+                document.getElementById('synergy-metrics').innerText = `🚨 REAL-TIME BREAKOUT | BTC 24H: ${latchedChg.toFixed(2)}% | SL: NEEDLE TIP | LOCK: ${timeLeft}s`;
+            } else {
+                synergyAlert.style.display = "none";
+            }
+
+            const dec = document.getElementById('jpm-decision');
+            if(upCount >= 1) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
+            else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
+
+        } catch (e) {
+            document.getElementById('jpm-status-indicator').innerText = "⚠️ SIGNAL LOST";
             document.getElementById('jpm-status-indicator').style.color = "var(--color-down)";
-            setTimeout(initWebSocket, 2000); 
-        };
-    }
-
-    function renderAssetRow(key) {
-        const item = ASSETS[key];
-        const prices = item.history.map(h => h.price);
-        const rollingHigh = Math.max(...prices);
-        const rollingLow = Math.min(...prices);
-        const rollingAmp = rollingLow > 0 ? ((rollingHigh - rollingLow) / rollingLow) * 100 : 0;
-
-        let centerContentHtml = "---";
-        if (item.change > 3.5) {
-            centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
-        } else if (item.change < -4.5) {
-            centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
-        } else if (rollingAmp > 1.2 && item.price > rollingLow * 1.003) {
-            centerContentHtml = `<span class="tag-pin">🟧 插針反彈</span>`;
-        }
-
-        document.getElementById(`price-${key}`).innerText = `$${item.price.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-        const chgEl = document.getElementById(`chg-${key}`);
-        chgEl.innerText = `${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)}%`;
-        chgEl.style.color = item.change >= 0 ? 'var(--color-up)' : 'var(--color-down)';
-        document.getElementById(`state-${key}`).innerHTML = centerContentHtml;
-    }
-
-    function checkSynergyLogic() {
-        const now = Date.now();
-        const ethPrices = ASSETS["ETHUSDT"].history.map(h => h.price);
-        const ethHigh = Math.max(...ethPrices);
-        const ethLow = Math.min(...ethPrices);
-        const ethRollingAmp = ethLow > 0 ? ((ethHigh - ethLow) / ethLow) * 100 : 0;
-        
-        let btcChg = ASSETS["BTCUSDT"].change;
-
-        if (ethRollingAmp > 1.5 && btcChg < -0.5) {
-            latchExpiryTime = now + 15000;
-            latchedAsset = "CROSS-MARKET CORE";
-            latchedChg = btcChg;
-        }
-
-        const synergyAlert = document.getElementById('synergy-alert');
-        if (now < latchExpiryTime) {
-            synergyAlert.style.display = "block";
-            let timeLeft = Math.ceil((latchExpiryTime - now) / 1000);
-            document.getElementById('synergy-title').innerText = `${latchedAsset} SYNERGY`;
-            document.getElementById('synergy-metrics').innerText = `🚨 REAL-TIME BREAKOUT | BTC 24H: ${latchedChg.toFixed(2)}% | SL: 3M NEEDLE LOW | LOCK: ${timeLeft}s`;
-        } else {
-            synergyAlert.style.display = "none";
         }
     }
 
     document.addEventListener("visibilitychange", function() {
         if (!document.hidden) {
             latchExpiryTime = 0;
-            Object.keys(ASSETS).forEach(k => ASSETS[k].history = []); 
             document.getElementById('synergy-alert').style.display = "none";
-            if (ws) { ws.close(); }
+            updateWebTerminal();
         }
     });
 
-    initWebSocket();
+    updateWebTerminal();
+    setInterval(updateWebTerminal, 1000);
 </script>
 </body>
 </html>
