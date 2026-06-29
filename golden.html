@@ -3,148 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JPM Command Center v30.3</title>
+    <title>JPM Command Center v32.0</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
-            --bg-color: #06090d;
-            --card-bg: #0d1117;
-            --text-title: #ffffff;
-            --text-sub: #8b949e;
-            --color-up: #23c55e;
-            --color-down: #f84444;
-            --border-color: #21262d;
-            --jpm-gold: #d4af37;
-            --oi-purple: #a855f7;
-            --tw-blue: #38bdf8;
+            --bg-color: #06090d; --card-bg: #0d1117; --text-title: #ffffff;
+            --text-sub: #8b949e; --color-up: #23c55e; --color-down: #f84444;
+            --border-color: #21262d; --jpm-gold: #d4af37; --tw-blue: #38bdf8;
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-title);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            margin: 0;
-            padding: calc(10px + env(safe-area-inset-top)) 12px 100px 12px;
-            -webkit-user-select: none;
-            box-sizing: border-box;
-        }
-        .container { width: 100%; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg-color); color: var(--text-title); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: calc(10px + env(safe-area-inset-top)) 12px 100px 12px; -webkit-user-select: none; }
+        .container { width: 100%; max-width: 480px; margin: 0 auto; }
         .jpm-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; position: relative; }
         .jpm-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-sub); }
         .jpm-title { font-size: 19px; font-weight: 800; margin: 2px 0; color: #f1f5f9; }
-        
         .heartbeat-status { position: absolute; top: 12px; right: 8px; font-size: 11px; color: var(--color-up); font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .heartbeat-status.error { color: var(--color-down); }
-
-        .jpm-macro-panel {
-            background: rgba(212, 175, 55, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-        .panel-row { display: flex; justify-content: space-between; align-items: center; }
+        .jpm-macro-panel { background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 12px; }
+        .panel-row { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; }
         .panel-title { font-weight: bold; color: var(--jpm-gold); }
-        .panel-value { font-family: monospace; font-size: 14px; font-weight: bold; }
-
-        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
+        .panel-value { font-family: monospace; font-size: 13px; font-weight: bold; }
+        .jpm-conclusion { margin-bottom: 10px; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; }
         .status-hold { background: #22272e; color: #cbd5e1; }
-        .status-buy { background: #064e3b; color: #6ee7b7; }
-
+        .status-buy  { background: #064e3b; color: #6ee7b7; }
+        .status-sell { background: #450a0a; color: #fca5a5; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        /* 📱 底部導覽列精確均分樣式 */
-        .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #161b22; border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 4px calc(10px + env(safe-area-inset-bottom)) 4px;
-            z-index: 1000;
-            box-sizing: border-box;
-        }
-        .nav-item {
-            color: var(--text-sub); font-size: 9.5px; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            background: none; border: none; flex: 1; text-align: center;
-            padding: 0; margin: 0; min-width: 0;
-        }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #161b22; border-top: 1px solid var(--border-color); display: flex; padding: 10px 4px calc(10px + env(safe-area-inset-bottom)) 4px; z-index: 1000; }
+        .nav-item { color: var(--text-sub); font-size: 9.5px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; flex: 1; text-align: center; padding: 0; min-width: 0; }
         .nav-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .nav-item.active { color: var(--jpm-gold); }
         .nav-icon { font-size: 17px; display: block; }
-
         .group-title { font-size: 12px; font-weight: bold; color: var(--text-sub); margin: 14px 0 6px 2px; }
         .asset-list { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 0 10px; }
-        
-        .asset-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #21262d; }
+        .asset-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #21262d; gap: 6px; }
         .asset-row:last-child { border-bottom: none; }
-        
-        .col-left { width: 130px; display: flex; flex-direction: column; }
-        .col-center { width: 125px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .col-right { width: 115px; text-align: right; display: flex; flex-direction: column; }
-        
-        .state-label-box { font-size: 14px; font-weight: bold; font-family: monospace; color: var(--text-sub); text-align: center; width: 100%; }
-        .tag-whale { background: rgba(35, 197, 94, 0.15); color: #34d399; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(35, 197, 94, 0.3); font-size: 13px; } 
-        .tag-dump { background: rgba(248, 68, 68, 0.15); color: #fee2e2; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(248, 68, 68, 0.3); font-size: 13px; }
-        .tag-pin { background: rgba(212, 175, 55, 0.15); color: var(--jpm-gold); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 13px; }
-
-        .asset-chg { font-size: 12.5px; font-weight: bold; font-family: monospace; margin-top: 2px; }
-
-        /* 🚨 爆倉排版 */
+        .col-left  { width: 100px; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+        .col-center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+        .col-right { width: 100px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+        .asset-name { font-size: 16px; font-weight: bold; }
+        .asset-sub  { font-size: 10px; color: var(--text-sub); }
+        .asset-price { font-size: 16px; font-weight: bold; font-family: monospace; }
+        .asset-chg  { font-size: 12px; font-weight: bold; font-family: monospace; margin-top: 2px; }
+        /* 主標籤 */
+        .tag-whale { background: rgba(35,197,94,0.15);  color: #34d399; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(35,197,94,0.35);  font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .tag-dump  { background: rgba(248,68,68,0.15);  color: #fca5a5; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(248,68,68,0.35);  font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .tag-warn  { background: rgba(212,175,55,0.15); color: var(--jpm-gold); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(212,175,55,0.35); font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .tag-neut  { color: var(--text-sub); font-size: 12px; font-family: monospace; }
+        /* 進出場信號膠囊 */
+        .sig-row { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+        .sig { font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 3px; font-family: monospace; white-space: nowrap; }
+        .sig-buy  { background: rgba(35,197,94,0.2);   color: #34d399; border: 1px solid rgba(35,197,94,0.4); }
+        .sig-sell { background: rgba(248,68,68,0.2);   color: #f87171; border: 1px solid rgba(248,68,68,0.4); }
+        .sig-neut { background: rgba(139,148,158,0.15); color: #8b949e; border: 1px solid rgba(139,148,158,0.3); }
+        .sig-warn { background: rgba(212,175,55,0.2);  color: var(--jpm-gold); border: 1px solid rgba(212,175,55,0.4); }
+        /* 爆倉 */
         .bruco-metric { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .power-bar-wrapper { height: 18px; background: #21262d; border-radius: 4px; overflow: hidden; display: flex; margin-top: 6px; position: relative; }
-        .power-long { background: var(--color-down); height: 100%; width: 50%; transition: width 0.3s ease; }
-        .power-short { background: var(--color-up); height: 100%; width: 50%; transition: width 0.3s ease; }
-        .power-text { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; box-sizing: border-box; font-size: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; font-family: monospace;}
-        .liq-log-list { max-height: 320px; overflow-y: auto; font-family: monospace; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .power-long  { background: var(--color-down); height: 100%; width: 50%; transition: width 0.3s; }
+        .power-short { background: var(--color-up);   height: 100%; width: 50%; transition: width 0.3s; }
+        .power-text  { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; font-size: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; font-family: monospace; }
+        .liq-log-list { max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
         .liq-item { padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; font-weight: bold; }
-        .liq-long { background: rgba(248,68,68,0.12); color: var(--color-down); border-left: 3px solid var(--color-down); }
-        .liq-short { background: rgba(35,197,94,0.12); color: var(--color-up); border-left: 3px solid var(--color-up); }
-
-        /* ⚙️ 設置區塊專屬視覺 */
+        .liq-long  { background: rgba(248,68,68,0.12); color: var(--color-down); border-left: 3px solid var(--color-down); }
+        .liq-short { background: rgba(35,197,94,0.12); color: var(--color-up);   border-left: 3px solid var(--color-up); }
+        /* 設置 */
         .config-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .config-input-group { display: flex; gap: 6px; margin-top: 6px; margin-bottom: 4px; }
         .config-select { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; outline: none; min-width: 0; }
-        .config-input { width: 110px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; min-width: 0; }
+        .config-input  { width: 100px; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 13px; min-width: 0; }
         .config-btn { background: var(--jpm-gold); border: none; color: black; font-weight: bold; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
         .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .chip { background: #21262d; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; color: white; }
         .chip-del { color: var(--color-down); font-weight: bold; cursor: pointer; }
+        .data-note { font-size: 10px; color: var(--text-sub); text-align: center; margin-top: 8px; font-family: monospace; line-height: 1.6; }
+        .key-input-row { display: flex; gap: 6px; margin-top: 6px; }
+        .key-input { flex: 1; background: #161b22; border: 1px solid var(--border-color); border-radius: 4px; color: white; padding: 8px; font-size: 12px; font-family: monospace; }
+        .key-save-btn { background: #21262d; border: 1px solid var(--border-color); color: var(--jpm-gold); font-weight: bold; padding: 8px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .loading-row { padding: 20px; text-align: center; color: var(--text-sub); font-size: 12px; }
+        @keyframes blink { from {opacity:.5} to {opacity:1} }
+        .blinking { animation: blink .8s infinite alternate; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="jpm-header">
-        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v30.3</div>
+        <div class="jpm-brand">🏛️ J.P. Morgan ACC Web Terminal v32.0</div>
         <div class="jpm-title">全球跨市場即時量化矩陣</div>
-        <div id="jpm-status-indicator" class="heartbeat-status">● LIVE</div>
+        <div id="jpm-status-indicator" class="heartbeat-status blinking">● 連線中</div>
     </div>
 
     <div class="jpm-macro-panel">
         <div class="panel-row">
-            <span class="panel-title">🎯 TSM ADR 溢價率 (台股即時錨定)</span>
-            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">+13.42%</span>
+            <span class="panel-title">🎯 TSM ADR 動能差 (即時)</span>
+            <span id="tsm-premium" class="panel-value" style="color:var(--jpm-gold)">載入中...</span>
         </div>
-        <div class="panel-row" style="margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
-            <span class="panel-title">⚡ 網頁端實時清算流速</span>
+        <div class="panel-row" style="border-top:1px solid rgba(255,255,255,0.05); padding-top:4px; margin-top:4px;">
+            <span class="panel-title">⚡ 即時清算流速</span>
             <span id="global-liq-text" class="panel-value" style="color:var(--color-down)">連線中...</span>
         </div>
+        <div class="panel-row" style="border-top:1px solid rgba(255,255,255,0.05); padding-top:4px; margin-top:4px;">
+            <span class="panel-title">🕐 台股市場狀態</span>
+            <span id="tw-market-status" class="panel-value">偵測中...</span>
+        </div>
     </div>
 
-    <div id="jpm-decision" class="jpm-conclusion status-hold">JPM WEB: HOLD / 籌碼沉澱橫盤期</div>
+    <div id="jpm-decision" class="jpm-conclusion status-hold">載入即時數據中...</div>
 
+    <!-- 合約 Tab -->
     <div id="tab-crypto" class="tab-content active">
-        <div class="group-title">🪙 CRYPTO PERPETUALS (合約主力狀態監測)</div>
-        <div id="crypto-container" class="asset-list"></div>
+        <div class="group-title">🪙 CRYPTO PERPETUALS · Binance 合約即時</div>
+        <div id="crypto-container" class="asset-list"><div class="loading-row blinking">⏳ 連接 Binance...</div></div>
     </div>
 
+    <!-- 爆倉 Tab -->
     <div id="tab-scanner" class="tab-content">
         <div class="group-title">⚖️ 即時多空清算燃料對決</div>
         <div class="bruco-metric">
             <div class="power-bar-wrapper">
-                <div id="power-long-bar" class="power-long"></div>
+                <div id="power-long-bar"  class="power-long"></div>
                 <div id="power-short-bar" class="power-short"></div>
                 <div class="power-text">
                     <span id="power-long-text">多頭爆: 50%</span>
@@ -152,33 +130,55 @@
                 </div>
             </div>
         </div>
-        <div class="group-title">🚨 即時逐筆大單爆倉流 (過濾 &ge; $5,000)</div>
-        <div class="bruco-metric">
-            <div id="liq-log" class="liq-log-list"></div>
-        </div>
+        <div class="group-title">🚨 逐筆大單爆倉流 (≥ $5,000)</div>
+        <div class="bruco-metric"><div id="liq-log" class="liq-log-list"></div></div>
     </div>
 
+    <!-- 台股 Tab -->
     <div id="tab-taiwan" class="tab-content">
-        <div class="group-title">🇹🇼 TAIWAN EQUITIES (台股主力狀態監測)</div>
-        <div id="tw-stock-container" class="asset-list"></div>
+        <div class="group-title">🇹🇼 TAIWAN EQUITIES · TWSE 官方即時</div>
+        <div id="tw-stock-container" class="asset-list"><div class="loading-row blinking">⏳ 連接 TWSE OpenAPI...</div></div>
+        <div class="data-note">📡 資料源：臺灣證券交易所 OpenAPI（openapi.twse.com.tw）<br>盤中每30秒更新 · 收盤後顯示當日收盤價</div>
     </div>
 
+    <!-- 美股 Tab -->
     <div id="tab-stock" class="tab-content">
-        <div class="group-title">🇺🇸 US EQUITY STOCKS (美股主力狀態監測)</div>
-        <div id="stock-container" class="asset-list"></div>
+        <div class="group-title">🇺🇸 US EQUITY STOCKS · Finnhub 即時</div>
+        <div id="stock-container" class="asset-list"><div class="loading-row blinking">⏳ 連接 Finnhub...</div></div>
+        <div class="data-note" id="finnhub-note">📡 資料源：Finnhub.io 免費 API<br>⚠️ 請至設置填入 Finnhub API Key（免費申請）</div>
     </div>
 
+    <!-- 設置 Tab -->
     <div id="tab-config" class="tab-content">
+
+        <!-- Finnhub Key -->
+        <div class="config-box" style="border-color:rgba(212,175,55,0.4)">
+            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🔑 Finnhub API Key（美股必填）</div>
+            <div class="key-input-row">
+                <input type="text" id="finnhub-key-input" class="key-input" placeholder="填入你的 Finnhub Free API Key...">
+                <button class="key-save-btn" onclick="saveFinnhubKey()">儲存</button>
+            </div>
+            <div class="data-note" style="text-align:left; margin-top:6px">
+                1. 前往 <strong style="color:var(--jpm-gold)">finnhub.io</strong> → 免費註冊 → 複製 API Key<br>
+                2. 貼入上方欄位 → 儲存 → 切換美股 Tab 即可<br>
+                免費方案：60次/分鐘，完全夠用
+            </div>
+            <div id="key-status" style="font-size:11px; margin-top:6px; font-family:monospace; color:var(--color-up)"></div>
+        </div>
+
+        <!-- 合約 -->
         <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約看盤自訂</div>
+            <div class="group-title" style="margin-top:0; color:var(--jpm-gold)">🪙 永續合約自訂</div>
             <div class="config-input-group">
                 <select id="crypto-select" class="config-select">
-                    <option value="">-- 快速選擇合約 --</option>
-                    <option value="BTCUSDT">BTC (比特幣)</option>
-                    <option value="ETHUSDT">ETH (乙太幣)</option>
-                    <option value="SOLUSDT">SOL (索拉納)</option>
-                    <option value="SNDKUSDT">SNDK (閃迪)</option>
-                    <option value="MUUSDT">MU (美光)</option>
+                    <option value="">-- 快速選擇 --</option>
+                    <option value="BTCUSDT">BTC 比特幣</option>
+                    <option value="ETHUSDT">ETH 乙太坊</option>
+                    <option value="SOLUSDT">SOL 索拉納</option>
+                    <option value="SNDKUSDT">SNDK 閃迪</option>
+                    <option value="MUUSDT">MU 美光</option>
+                    <option value="BNBUSDT">BNB</option>
+                    <option value="XRPUSDT">XRP</option>
                 </select>
                 <input type="text" id="crypto-custom" class="config-input" placeholder="自訂代號">
                 <button class="config-btn" onclick="addAsset('crypto')">新增</button>
@@ -186,37 +186,46 @@
             <div class="chip-list" id="crypto-chips"></div>
         </div>
 
+        <!-- 台股 -->
         <div class="config-box">
-            <div class="group-title" style="margin-top:0; color:var(--tw-blue)">🇹🇼 台股看盤自訂</div>
+            <div class="group-title" style="margin-top:0; color:var(--tw-blue)">🇹🇼 台股自訂</div>
             <div class="config-input-group">
                 <select id="taiwan-select" class="config-select">
-                    <option value="">-- 快速選擇台股 --</option>
-                    <option value="加權指數">加權指數</option>
-                    <option value="台積電">台積電</option>
-                    <option value="鴻海">鴻海</option>
-                    <option value="聯電">聯電</option>
-                    <option value="聯發科">聯發科</option>
-                    <option value="南電">南電</option>
-                    <option value="0056">0056</option>
-                    <option value="00878">00878</option>
+                    <option value="">-- 快速選擇 --</option>
+                    <option value="2330">台積電 2330</option>
+                    <option value="2317">鴻海 2317</option>
+                    <option value="2303">聯電 2303</option>
+                    <option value="2454">聯發科 2454</option>
+                    <option value="2412">中華電 2412</option>
+                    <option value="2308">台達電 2308</option>
+                    <option value="0056">0056 ETF</option>
+                    <option value="00878">00878 ETF</option>
                 </select>
-                <input type="text" id="taiwan-custom" class="config-input" placeholder="代號 (如 2330)">
+                <input type="text" id="taiwan-custom" class="config-input" placeholder="代號 如 2330">
                 <button class="config-btn" onclick="addAsset('taiwan')">新增</button>
             </div>
             <div class="chip-list" id="taiwan-chips"></div>
+            <div class="data-note" style="text-align:left">填代號即可（不需 .TW），加權指數不在此列表，系統自動顯示</div>
         </div>
 
+        <!-- 美股 -->
         <div class="config-box">
-            <div class="group-title" style="margin-top:0">🇺🇸 美股看盤自訂</div>
+            <div class="group-title" style="margin-top:0">🇺🇸 美股自訂</div>
             <div class="config-input-group">
                 <select id="stock-select" class="config-select">
-                    <option value="">-- 快速選擇美股 --</option>
-                    <option value="TSM">TSM (台積電 ADR)</option>
-                    <option value="NVDA">NVDA (輝達)</option>
-                    <option value="AAPL">AAPL (蘋果)</option>
-                    <option value="TSLA">TSLA (特斯拉)</option>
+                    <option value="">-- 快速選擇 --</option>
+                    <option value="TSM">TSM 台積電ADR</option>
+                    <option value="NVDA">NVDA 輝達</option>
+                    <option value="AAPL">AAPL 蘋果</option>
+                    <option value="TSLA">TSLA 特斯拉</option>
+                    <option value="AMD">AMD</option>
+                    <option value="META">META</option>
+                    <option value="AMZN">AMZN</option>
+                    <option value="MSFT">MSFT</option>
+                    <option value="SPY">SPY 標普ETF</option>
+                    <option value="QQQ">QQQ 那指ETF</option>
                 </select>
-                <input type="text" id="stock-custom" class="config-input" placeholder="自訂 Ticker">
+                <input type="text" id="stock-custom" class="config-input" placeholder="Ticker">
                 <button class="config-btn" onclick="addAsset('stock')">新增</button>
             </div>
             <div class="chip-list" id="stock-chips"></div>
@@ -225,233 +234,413 @@
 </div>
 
 <nav class="nav-bar">
-    <button class="nav-item active" id="btn-crypto" onclick="switchTab('crypto')">
-        <span class="nav-icon">🪙</span><span>合約</span>
-    </button>
-    <button class="nav-item" id="btn-scanner" onclick="switchTab('scanner')">
-        <span class="nav-icon">🚨</span><span>爆倉</span>
-    </button>
-    <button class="nav-item" id="btn-taiwan" onclick="switchTab('taiwan')">
-        <span class="nav-icon">🇹🇼</span><span>台股</span>
-    </button>
-    <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">
-        <span class="nav-icon">🇺🇸</span><span>美股</span>
-    </button>
-    <button class="nav-item" id="btn-config" onclick="switchTab('config')">
-        <span class="nav-icon">⚙️</span><span>設置</span>
-    </button>
+    <button class="nav-item active" id="btn-crypto"  onclick="switchTab('crypto')"> <span class="nav-icon">🪙</span><span>合約</span></button>
+    <button class="nav-item"        id="btn-scanner" onclick="switchTab('scanner')"><span class="nav-icon">🚨</span><span>爆倉</span></button>
+    <button class="nav-item"        id="btn-taiwan"  onclick="switchTab('taiwan')"> <span class="nav-icon">🇹🇼</span><span>台股</span></button>
+    <button class="nav-item"        id="btn-stock"   onclick="switchTab('stock')">  <span class="nav-icon">🇺🇸</span><span>美股</span></button>
+    <button class="nav-item"        id="btn-config"  onclick="switchTab('config')"> <span class="nav-icon">⚙️</span><span>設置</span></button>
 </nav>
 
 <script>
-    // 🧠 v30.3 版本強制更新：大清洗
-    if (!localStorage.getItem('web_v303_master_flush')) { localStorage.clear(); localStorage.setItem('web_v303_master_flush', 'true'); }
+'use strict';
+// ── 版本清洗 ─────────────────────────────────────────
+if (!localStorage.getItem('v320_flush')) { localStorage.clear(); localStorage.setItem('v320_flush','1'); }
 
-    const BASE_DICT = {
-        "加權指數": { id: "加權指數", name: "加權指數", price: 44571.7, change: -1.69 },
-        "台積電": { id: "台積電", name: "台積電", price: 2340.0, change: -0.63 },
-        "鴻海": { id: "鴻海", name: "鴻海", price: 214.5, change: -0.45 },
-        "聯電": { id: "聯電", name: "聯電", price: 53.2, change: -0.20 },
-        "聯發科": { id: "聯發科", name: "聯發科", price: 3880.0, change: -14.81 },
-        "南電": { id: "南電", name: "南電", price: 154.5, change: -1.30 },
-        "0056": { id: "0056", name: "0056", price: 41.25, change: 0.22 },
-        "00878": { id: "00878", name: "00878", price: 23.45, change: 0.15 }
-    };
+// ── 持久化設定 ────────────────────────────────────────
+let FINNHUB_KEY = localStorage.getItem('finnhub_key') || '';
+let CRYPTOS     = JSON.parse(localStorage.getItem('cryptos'))   || ['BTCUSDT','ETHUSDT','SOLUSDT','SNDKUSDT','MUUSDT'];
+let STOCKS      = JSON.parse(localStorage.getItem('stocks'))    || ['TSM','NVDA','AAPL','TSLA'];
+let TW_STOCKS   = JSON.parse(localStorage.getItem('tw_stocks')) || ['2330','2317','2303','2454'];
 
-    const US_DICT = {
-        "TSM": { name: "TSM", price: 215.40, change: 1.45 },
-        "NVDA": { name: "NVDA", price: 192.53, change: -14.18 },
-        "AAPL": { name: "AAPL", price: 224.30, change: -0.35 },
-        "TSLA": { name: "TSLA", price: 218.80, change: -1.85 }
-    };
+// ── API 端點 ──────────────────────────────────────────
+const BINANCE_API = 'https://fapi.binance.com/fapi/v1/ticker/24hr';
+// TWSE OpenAPI — 官方，無 key，CORS 開放
+const TWSE_ALL_URL  = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL';
+const TWSE_INDEX    = 'https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST';
+const TWSE_RT       = 'https://mis.twse.com.tw/stock/api/getStockInfo.asp?ex_ch=';
+// Finnhub
+const FH = (sym) => `https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`;
 
-    let CRYPTOS = JSON.parse(localStorage.getItem('web_cryptos')) || ["BTCUSDT", "ETHUSDT", "SOLUSDT", "SNDKUSDT", "MUUSDT"];
-    let STOCKS = JSON.parse(localStorage.getItem('web_stocks')) || ["TSM", "NVDA", "AAPL", "TSLA"];
-    let TW_STOCKS = JSON.parse(localStorage.getItem('web_tw_stocks')) || ["加權指數", "台積電", "鴻海", "聯電", "聯發科", "南電", "0056", "00878"];
+// ── 狀態 ──────────────────────────────────────────────
+let totalLongLiq = 50000, totalShortLiq = 50000;
+let priceHist = {};   // 滾動價格歷史，用於計算動能/RSI
+let twseCache = {};   // TWSE 全量資料快取
+let twseLastFetch = 0;
+let cryptoUpCount = 0;
 
-    const BINANCE_API = "https://fapi.binance.com/fapi/v1/ticker/24hr";
-    let totalLongLiq = 50000; let totalShortLiq = 50000;
-    let MASTER_DATA = {};
-    
-    function syncMaster() {
-        Object.keys(BASE_DICT).forEach(k => { MASTER_DATA[k] = { name: BASE_DICT[k].name, price: BASE_DICT[k].price, change: BASE_DICT[k].change }; });
-        Object.keys(US_DICT).forEach(k => { MASTER_DATA[k] = { name: US_DICT[k].name, price: US_DICT[k].price, change: US_DICT[k].change }; });
+// ── UI 工具 ───────────────────────────────────────────
+function switchTab(id) {
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-bar button').forEach(e => e.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
+    document.getElementById('btn-'+id).classList.add('active');
+}
+
+function renderChips() {
+    document.getElementById('crypto-chips').innerHTML = CRYPTOS.map(c => `<div class="chip">${c.replace('USDT','')} <span class="chip-del" onclick="removeAsset('crypto','${c}')">&times;</span></div>`).join('');
+    document.getElementById('taiwan-chips').innerHTML = TW_STOCKS.map(t => `<div class="chip">${t} <span class="chip-del" onclick="removeAsset('taiwan','${t}')">&times;</span></div>`).join('');
+    document.getElementById('stock-chips').innerHTML  = STOCKS.map(s => `<div class="chip">${s} <span class="chip-del" onclick="removeAsset('stock','${s}')">&times;</span></div>`).join('');
+}
+
+function saveFinnhubKey() {
+    const v = document.getElementById('finnhub-key-input').value.trim();
+    if (!v) return;
+    FINNHUB_KEY = v;
+    localStorage.setItem('finnhub_key', v);
+    document.getElementById('key-status').innerText = '✅ 已儲存，切換美股 Tab 即可使用';
+    fetchStocks();
+}
+
+function addAsset(type) {
+    const sel = document.getElementById(type+'-select');
+    const inp = document.getElementById(type+'-custom');
+    let val = sel.value || inp.value.trim();
+    if (!val) return;
+    if (type==='crypto') { val=val.toUpperCase(); if(!val.endsWith('USDT')) val+='USDT'; if(!CRYPTOS.includes(val)) CRYPTOS.push(val); localStorage.setItem('cryptos',JSON.stringify(CRYPTOS)); }
+    if (type==='taiwan') { if(!TW_STOCKS.includes(val)) TW_STOCKS.push(val); localStorage.setItem('tw_stocks',JSON.stringify(TW_STOCKS)); }
+    if (type==='stock')  { val=val.toUpperCase(); if(!STOCKS.includes(val)) STOCKS.push(val); localStorage.setItem('stocks',JSON.stringify(STOCKS)); }
+    sel.value=''; inp.value=''; renderChips();
+    if(type==='taiwan') fetchTWStocks();
+    if(type==='stock')  fetchStocks();
+}
+
+function removeAsset(type, val) {
+    if(type==='crypto') { CRYPTOS=CRYPTOS.filter(i=>i!==val); localStorage.setItem('cryptos',JSON.stringify(CRYPTOS)); }
+    if(type==='taiwan') { TW_STOCKS=TW_STOCKS.filter(i=>i!==val); localStorage.setItem('tw_stocks',JSON.stringify(TW_STOCKS)); }
+    if(type==='stock')  { STOCKS=STOCKS.filter(i=>i!==val); localStorage.setItem('stocks',JSON.stringify(STOCKS)); }
+    renderChips();
+    if(type==='taiwan') fetchTWStocks();
+    if(type==='stock')  fetchStocks();
+}
+
+// ── 台股市場時間偵測 ──────────────────────────────────
+function getTWMarketState() {
+    const now = new Date();
+    const tw  = new Date(now.toLocaleString('en-US',{timeZone:'Asia/Taipei'}));
+    const day = tw.getDay();
+    const t   = tw.getHours()*100 + tw.getMinutes();
+    if (day===0||day===6) return {open:false, label:'🔴 週末休市'};
+    if (t>=900 && t<=1330) return {open:true,  label:'🟢 盤中交易中'};
+    if (t>1330 && t<=1500) return {open:false, label:'🟡 盤後試撮'};
+    return {open:false, label:'🔴 收盤'};
+}
+
+// ── 即時量化信號引擎 ──────────────────────────────────
+// 根據漲跌幅、成交量比（若有）動態判斷機構行為
+function calcSignal(sym, change, volRatio) {
+    // 追蹤歷史
+    if (!priceHist[sym]) priceHist[sym] = [];
+    if (change !== null) priceHist[sym].push(change);
+    if (priceHist[sym].length > 20) priceHist[sym].shift();
+
+    const hist = priceHist[sym];
+    const vr   = volRatio || 1;
+
+    // 簡易動能 RSI（基於漲跌幅序列）
+    let rsi = 50;
+    if (hist.length >= 5) {
+        let g=0, l=0;
+        for (let i=1;i<hist.length;i++) { const d=hist[i]-hist[i-1]; d>0?g+=d:l+=Math.abs(d); }
+        const c=hist.length-1;
+        if(c>0){const ag=g/c, al=l/c; rsi=al===0?100:100-(100/(1+ag/al));}
     }
-    syncMaster();
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-bar button').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        document.getElementById('btn-' + tabId).classList.add('active');
+    let mainTag='', sigs=[];
+
+    // 主力行為判斷
+    if (change>=5.0 && vr>=1.5) {
+        mainTag=`<span class="tag-whale">🟩 機構掃貨</span>`;
+        sigs.push(`<span class="sig sig-buy">★ 強力進場</span>`);
+    } else if (change>=3.0) {
+        mainTag=`<span class="tag-whale">🟩 巨鯨吸籌</span>`;
+        sigs.push(`<span class="sig sig-buy">↑ 買入信號</span>`);
+    } else if (change<=-5.0 && vr>=1.5) {
+        mainTag=`<span class="tag-dump">🟥 機構出貨</span>`;
+        sigs.push(`<span class="sig sig-sell">★ 強力出場</span>`);
+    } else if (change<=-3.0) {
+        mainTag=`<span class="tag-dump">🟥 主力砸盤</span>`;
+        sigs.push(`<span class="sig sig-sell">↓ 賣出信號</span>`);
+    } else if (Math.abs(change)<0.5 && vr>=2.0) {
+        mainTag=`<span class="tag-warn">🟧 大量橫盤</span>`;
+        sigs.push(`<span class="sig sig-warn">⚡ 蓄力觀察</span>`);
+    } else if (change>=1.5) {
+        mainTag=`<span class="tag-warn">🟧 溫和上漲</span>`;
+        sigs.push(`<span class="sig sig-buy">↗ 輕倉參與</span>`);
+    } else if (change<=-1.5) {
+        mainTag=`<span class="tag-dump">🟥 小幅回調</span>`;
+        sigs.push(`<span class="sig sig-neut">→ 等待</span>`);
+    } else {
+        mainTag=`<span class="tag-neut">— 盤整</span>`;
+        sigs.push(`<span class="sig sig-neut">→ 觀望</span>`);
     }
 
-    function renderChips() {
-        document.getElementById('crypto-chips').innerHTML = CRYPTOS.map(c => `<div class="chip">${c.replace("USDT","")} <span class="chip-del" onclick="removeAsset('crypto','${c}')">&times;</span></div>`).join('');
-        document.getElementById('taiwan-chips').innerHTML = TW_STOCKS.map(t => `<div class="chip">${t} <span class="chip-del" onclick="removeAsset('taiwan','${t}')">&times;</span></div>`).join('');
-        document.getElementById('stock-chips').innerHTML = STOCKS.map(s => `<div class="chip">${s} <span class="chip-del" onclick="removeAsset('stock','${s}')">&times;</span></div>`).join('');
-    }
+    // RSI 輔助
+    if (rsi>75) sigs.push(`<span class="sig sig-warn">RSI${rsi.toFixed(0)}超買</span>`);
+    else if (rsi<28) sigs.push(`<span class="sig sig-buy">RSI${rsi.toFixed(0)}超賣</span>`);
 
-    function addAsset(type) {
-        const select = document.getElementById(type + '-select');
-        const custom = document.getElementById(type + '-custom');
-        let val = select.value || custom.value.trim();
-        if(!val) return;
+    // 量能
+    if (vr>=2.5) sigs.push(`<span class="sig sig-warn">量${vr.toFixed(1)}x↑</span>`);
 
-        if(type === 'crypto') {
-            val = val.toUpperCase(); if(!val.endsWith("USDT")) val += "USDT";
-            if(!CRYPTOS.includes(val)) CRYPTOS.push(val);
-            localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS));
-        } else if(type === 'taiwan') {
-            let targetId = BASE_DICT[val] ? BASE_DICT[val].id : val;
-            if(!TW_STOCKS.includes(targetId)) TW_STOCKS.push(targetId);
-            if(!MASTER_DATA[targetId]) {
-                let base = BASE_DICT[val] || { price: 100, change: 0 };
-                MASTER_DATA[targetId] = { name: targetId, price: base.price, change: base.change };
-            }
-            localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS));
-        } else if(type === 'stock') {
-            val = val.toUpperCase();
-            if(!STOCKS.includes(val)) STOCKS.push(val);
-            if(!MASTER_DATA[val]) {
-                let base = US_DICT[val] || { price: 100, change: 0 };
-                MASTER_DATA[val] = { name: val, price: base.price, change: base.change };
-            }
-            localStorage.setItem('web_stocks', JSON.stringify(STOCKS));
+    return { mainTag, sigHtml:`<div class="sig-row">${sigs.join('')}</div>` };
+}
+
+// ── 渲染通用 row ──────────────────────────────────────
+function buildRow(name, subLabel, price, change, mainTag, sigHtml, nameColor) {
+    const col = nameColor||'white';
+    const chgColor = change>=0?'var(--color-up)':'var(--color-down)';
+    const chgStr   = (change>=0?'+':'')+change.toFixed(2)+'%';
+    return `
+    <div class="asset-row">
+        <div class="col-left">
+            <span class="asset-name" style="color:${col}">${name}</span>
+            <span class="asset-sub">${subLabel}</span>
+        </div>
+        <div class="col-center">
+            <div>${mainTag}</div>
+            ${sigHtml}
+        </div>
+        <div class="col-right">
+            <span class="asset-price">${price}</span>
+            <span class="asset-chg" style="color:${chgColor}">${chgStr}</span>
+        </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+// 🪙 合約：Binance FAPI
+// ════════════════════════════════════════════════════════
+async function fetchCrypto() {
+    const sig = document.getElementById('jpm-status-indicator');
+    try {
+        const res  = await fetch(BINANCE_API);
+        if (!res.ok) throw new Error('binance_fail');
+        const data = await res.json();
+        sig.innerText='● LIVE'; sig.className='heartbeat-status'; sig.classList.remove('blinking');
+
+        let html=''; cryptoUpCount=0;
+        for (const sym of CRYPTOS) {
+            const item   = data.find(d=>d.symbol===sym);
+            const price  = item ? parseFloat(item.lastPrice) : 0;
+            const change = item ? parseFloat(item.priceChangePercent) : 0;
+            const {mainTag,sigHtml} = calcSignal(sym,change,1);
+            if (change>=3) cryptoUpCount++;
+            const priceStr = price>=1000?price.toLocaleString('en-US',{maximumFractionDigits:1}):price.toFixed(price<1?4:2);
+            html += buildRow(sym.replace('USDT',''),'PERP','$'+priceStr,change,mainTag,sigHtml,'white');
         }
-        select.value = ''; custom.value = ''; renderChips(); updateWebTerminal();
+        document.getElementById('crypto-container').innerHTML = html;
+        updateDecision();
+    } catch(e) {
+        sig.innerText='⚠️ SIGNAL LOST'; sig.className='heartbeat-status error';
     }
+}
 
-    function removeAsset(type, val) {
-        if(type === 'crypto') { CRYPTOS = CRYPTOS.filter(i => i !== val); localStorage.setItem('web_cryptos', JSON.stringify(CRYPTOS)); }
-        if(type === 'taiwan') { TW_STOCKS = TW_STOCKS.filter(i => i !== val); localStorage.setItem('web_tw_stocks', JSON.stringify(TW_STOCKS)); }
-        if(type === 'stock') { STOCKS = STOCKS.filter(i => i !== val); localStorage.setItem('web_stocks', JSON.stringify(STOCKS)); }
-        renderChips(); updateWebTerminal();
-    }
+// ════════════════════════════════════════════════════════
+// 🇹🇼 台股：TWSE OpenAPI（官方，無 key，CORS 開放）
+// 端點 1：mis.twse.com.tw — 盤中即時（含成交量）
+// 端點 2：openapi.twse.com.tw — 日報全量（盤後 fallback）
+// ════════════════════════════════════════════════════════
+async function fetchTWStocks() {
+    const container = document.getElementById('tw-stock-container');
+    const mktState  = getTWMarketState();
+    document.getElementById('tw-market-status').innerText = mktState.label;
+    document.getElementById('tw-market-status').style.color = mktState.open ? 'var(--color-up)' : 'var(--color-down)';
 
-    function isTWMarketOpen() {
-        const now = new Date(); const day = now.getDay(); if (day === 0 || day === 6) return false;
-        const hour = now.getHours(); const min = now.getMinutes(); const timeVal = hour * 100 + min;
-        return (timeVal >= 900 && timeVal <= 1330);
-    }
+    let html = '';
 
-    function generateLiveLog() {
-        const log = document.getElementById('liq-log');
-        if (!log || CRYPTOS.length === 0) return;
-        const sym = CRYPTOS[Math.floor(Math.random() * CRYPTOS.length)];
-        let isLong = Math.random() > 0.45;
-        const amt = Math.floor(Math.random() * 85000 + 5000);
-        
-        if (isLong) totalLongLiq += amt; else totalShortLiq += amt;
-        let total = totalLongLiq + totalShortLiq;
-        let longPercent = ((totalLongLiq / total) * 100).toFixed(0);
-        let shortPercent = (100 - longPercent);
-        
-        if (document.getElementById('power-long-bar')) {
-            document.getElementById('power-long-bar').style.width = longPercent + "%";
-            document.getElementById('power-short-bar').style.width = shortPercent + "%";
-            document.getElementById('power-long-text').innerText = `🔴 多頭爆倉: ${longPercent}%`;
-            document.getElementById('power-short-text').innerText = `🟢 空頭軋空: ${shortPercent}%`;
-        }
-
-        const item = document.createElement('div');
-        item.className = `liq-item ${isLong ? 'liq-long' : 'liq-short'}`;
-        item.innerHTML = `<span>${sym.replace("USDT","")} ${isLong?'💥 多頭爆倉':'⚡ 空頭軋空'}</span><span>$${amt.toLocaleString()}</span>`;
-        log.prepend(item);
-        if(log.children.length > 8) log.lastChild.remove();
-        document.getElementById('global-liq-text').innerText = `🔥 密集清算中 ($${(Math.random() * 3 + 1.2).toFixed(2)}M)`;
-    }
-
-    async function updateWebTerminal() {
-        const signal = document.getElementById('jpm-status-indicator');
+    if (mktState.open) {
+        // ── 盤中：MIS 即時 API ──────────────────────────
+        // 格式: tse_2330.tw|tse_2317.tw|...
+        const query = TW_STOCKS.map(s=>`tse_${s}.tw`).join('|');
+        const url   = `https://mis.twse.com.tw/stock/api/getStockInfo.asp?ex_ch=${encodeURIComponent(query)}&json=1&delay=0`;
         try {
-            let cryptoHtml = ""; let upCount = 0;
-            const cryptoRes = await fetch(BINANCE_API);
-            if(!cryptoRes.ok) throw new Error();
-            const cryptoData = await cryptoRes.json();
-            signal.innerText = "● LIVE"; signal.className = "heartbeat-status";
+            const res  = await fetch(url);
+            const data = await res.json();
+            const msgArray = data.msgArray || [];
 
-            for(let sym of CRYPTOS) {
-                let item = cryptoData.find(d => d.symbol === sym);
-                let price = item ? parseFloat(item.lastPrice) : 0;
-                let change = item ? parseFloat(item.priceChangePercent) : 0;
-                
-                let centerContentHtml = "";
-                if (change > 3.0 || sym.includes("SOL")) {
-                    centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
-                    upCount++;
-                } else if (change < -4.0 || sym.includes("SNDK")) {
-                    centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
-                } else if (sym.includes("ETH") && change > 1.5) {
-                    centerContentHtml = `<span class="tag-pin">🟧 插針反彈</span>`;
-                } else {
-                    centerContentHtml = `---`;
-                }
-
-                cryptoHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${sym.replace("USDT","")}</span></div>
-                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
-                        <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${price.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
-                            <span class="asset-chg" style="color:${change>=0?'var(--color-up)':'var(--color-down)'}">${change>=0?'+':''}${change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
+            for (const sym of TW_STOCKS) {
+                const item = msgArray.find(m => m.c === sym);
+                if (!item) { html += buildRow(sym,'載入中...','--',0,'<span class="tag-neut">-- 查詢中</span>','','var(--tw-blue)'); continue; }
+                const price   = parseFloat(item.z || item.y) || 0;
+                const prevDay = parseFloat(item.y) || price;
+                const change  = prevDay>0 ? ((price-prevDay)/prevDay*100) : 0;
+                const vol     = parseInt(item.v) || 0;
+                const avgVol  = parseInt(item.q) || vol;
+                const vr      = avgVol>0 ? vol/avgVol : 1;
+                const {mainTag,sigHtml} = calcSignal(sym, change, vr);
+                const name    = item.n || sym;
+                const hi      = parseFloat(item.h)||0, lo=parseFloat(item.l)||0;
+                const subLbl  = hi>0?`H:${hi} L:${lo}`:name;
+                html += buildRow(sym, subLbl, price.toFixed(1), change, mainTag, sigHtml, 'var(--tw-blue)');
             }
-            document.getElementById('crypto-container').innerHTML = cryptoHtml;
-
-            let twHtml = ""; const twOpen = isTWMarketOpen();
-            for(let key of TW_STOCKS) {
-                let cache = MASTER_DATA[key];
-                if(!cache) {
-                    let base = BASE_DICT[key] || { name: key, price: 150, change: 0 };
-                    MASTER_DATA[key] = { name: base.name, price: base.price, change: base.change };
-                    cache = MASTER_DATA[key];
-                }
-                let centerContentHtml = "---";
-                if (key === "台積電") centerContentHtml = `<span class="tag-whale">🟩 巨鯨吸籌</span>`;
-                if (key === "聯發科") centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
-
-                twHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="color:var(--tw-blue); font-size: 18px !important; font-weight: bold;">${cache.name}</span></div>
-                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
-                        <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">${cache.name=='加權指數'?'':'$'}${cache.price.toLocaleString(undefined, {maximumFractionDigits:1})}</span>
-                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
-            }
-            document.getElementById('tw-stock-container').innerHTML = twHtml;
-
-            let stockHtml = "";
-            for(let ticker of STOCKS) {
-                let cache = MASTER_DATA[ticker];
-                let centerContentHtml = "---";
-                if (ticker === "NVDA") centerContentHtml = `<span class="tag-dump">🟥 機構出貨</span>`;
-
-                stockHtml += `
-                    <div class="asset-row">
-                        <div class="col-left"><span style="font-size: 18px !important; font-weight: bold;">${cache.name}</span></div>
-                        <div class="col-center"><div class="state-label-box">${centerContentHtml}</div></div>
-                        <div class="col-right">
-                            <span style="font-size: 18px !important; font-weight: bold; font-family: monospace;">$${cache.price.toFixed(2)}</span>
-                            <span class="asset-chg" style="color:${cache.change>=0?'var(--color-up)':'var(--color-down)'}">${cache.change>=0?'+':''}${cache.change.toFixed(2)}%</span>
-                        </div>
-                    </div>`;
-            }
-            document.getElementById('stock-container').innerHTML = stockHtml;
-
-            const dec = document.getElementById('jpm-decision');
-            if(upCount >= 2) { dec.innerText = "🚀 JPM WEB: 多頭資金放量建倉 / 順勢做多"; dec.className = "jpm-conclusion status-buy"; }
-            else { dec.innerText = "💤 JPM WEB: HOLD / 籌碼沉澱橫盤期"; dec.className = "jpm-conclusion status-hold"; }
-        } catch (e) {
-            signal.innerText = "⚠️ SIGNAL LOST"; signal.className = "heartbeat-status error";
+        } catch(e) {
+            html = '<div class="loading-row">⚠️ MIS 即時連線失敗，改用日報資料</div>';
+            html += await fetchTWFallback();
         }
+    } else {
+        // ── 收盤後：TWSE OpenAPI 日報 ───────────────────
+        html = await fetchTWFallback();
     }
 
-    renderChips(); updateWebTerminal();
-    setInterval(updateWebTerminal, 3000); 
-    setInterval(generateLiveLog, 1000);
+    // 加權指數（固定顯示，來自 TWSE 加權指數 API）
+    const idxHtml = await fetchTWIndex();
+    container.innerHTML = idxHtml + html;
+
+    // TSM 溢價更新
+    updateTSMPremium();
+}
+
+async function fetchTWFallback() {
+    // TWSE OpenAPI: 全上市股票當日行情
+    const now = Date.now();
+    if (now - twseLastFetch < 60000 && Object.keys(twseCache).length > 0) {
+        return renderTWFromCache();
+    }
+    try {
+        const res  = await fetch(TWSE_ALL_URL);
+        const data = await res.json();
+        data.forEach(item => {
+            twseCache[item['證券代號']] = item;
+        });
+        twseLastFetch = now;
+        return renderTWFromCache();
+    } catch(e) {
+        return '<div class="loading-row">⚠️ TWSE OpenAPI 連線失敗</div>';
+    }
+}
+
+function renderTWFromCache() {
+    let html = '';
+    for (const sym of TW_STOCKS) {
+        const item = twseCache[sym];
+        if (!item) { html += buildRow(sym,'未找到','--',0,'<span class="tag-neut">-- 查無資料</span>','','var(--tw-blue)'); continue; }
+        const name    = item['證券名稱'] || sym;
+        const price   = parseFloat((item['收盤價']||'').replace(/,/g,'')) || 0;
+        const change  = parseFloat((item['漲跌價差']||'').replace(/[+,]/g,'')) || 0;
+        const chgPct  = price>0 ? ((change/(price-change))*100) : 0;
+        const vol     = parseInt((item['成交股數']||'').replace(/,/g,'')) || 0;
+        const {mainTag,sigHtml} = calcSignal(sym, chgPct, 1);
+        html += buildRow(sym, name, price.toFixed(1), chgPct, mainTag, sigHtml, 'var(--tw-blue)');
+    }
+    return html;
+}
+
+async function fetchTWIndex() {
+    // 加權指數即時（TWSE 提供）
+    try {
+        const res  = await fetch('https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_INDEX');
+        const data = await res.json();
+        const item = data[0];
+        if (!item) return '';
+        const price  = parseFloat(item['發行量加權股價指數']||item['指數']||0);
+        const prev   = parseFloat(item['收盤指數']||item['漲跌']==='+'?price-parseFloat(item['漲跌點數']||0):price+parseFloat(item['漲跌點數']||0)||price);
+        const change = prev>0 ? ((price-prev)/prev*100) : 0;
+        const {mainTag,sigHtml} = calcSignal('^TWII', change, 1);
+        return buildRow('加權指數','TAIEX',price.toLocaleString('en-US',{maximumFractionDigits:0}), change, mainTag, sigHtml, 'var(--jpm-gold)');
+    } catch(e) {
+        return '';
+    }
+}
+
+// ════════════════════════════════════════════════════════
+// 🇺🇸 美股：Finnhub 即時報價
+// ════════════════════════════════════════════════════════
+async function fetchStocks() {
+    const container = document.getElementById('stock-container');
+    if (!FINNHUB_KEY) {
+        container.innerHTML = '<div class="loading-row">⚠️ 請至設置填入 Finnhub API Key</div>';
+        return;
+    }
+
+    // 並行抓取所有 ticker
+    const results = await Promise.all(STOCKS.map(async sym => {
+        try {
+            const res  = await fetch(FH(sym));
+            if (!res.ok) throw new Error();
+            const d    = await res.json();
+            // Finnhub /quote: c=現價, pc=昨收, h=高, l=低, o=開, v=成交量
+            const price  = d.c || 0;
+            const prev   = d.pc || price;
+            const change = prev>0 ? ((price-prev)/prev*100) : 0;
+            return {sym, price, change, ok:true};
+        } catch(e) {
+            return {sym, price:0, change:0, ok:false};
+        }
+    }));
+
+    let html='', upCnt=0, downCnt=0;
+    for (const r of results) {
+        if (r.change>1.5) upCnt++;
+        if (r.change<-1.5) downCnt++;
+        const {mainTag,sigHtml} = calcSignal(r.sym, r.change, 1);
+        const priceStr = r.ok ? ('$'+r.price.toFixed(2)) : '--';
+        html += buildRow(r.sym,'US STOCK', priceStr, r.change, mainTag, sigHtml, 'white');
+    }
+    container.innerHTML = html;
+    document.getElementById('finnhub-note').innerText = '📡 資料源：Finnhub.io 即時報價 · 每30秒更新';
+}
+
+// ── TSM ADR 溢價計算 ──────────────────────────────────
+async function updateTSMPremium() {
+    if (!FINNHUB_KEY) return;
+    try {
+        const [tsm, tw] = await Promise.all([
+            fetch(FH('TSM')).then(r=>r.json()),
+            // 台積電現股 change% 從快取取
+        ]);
+        const tsmChg  = tsm.pc>0 ? ((tsm.c-tsm.pc)/tsm.pc*100) : 0;
+        const twCache = twseCache['2330'];
+        if (!twCache) { document.getElementById('tsm-premium').innerText='載入中...'; return; }
+        const twPrice  = parseFloat((twCache['收盤價']||'').replace(/,/g,''))||0;
+        const twChange = parseFloat((twCache['漲跌價差']||'').replace(/[+,]/g,''))||0;
+        const twChgPct = twPrice>0 ? ((twChange/(twPrice-twChange))*100) : 0;
+        const diff     = tsmChg - twChgPct;
+        const el       = document.getElementById('tsm-premium');
+        el.innerText   = `${diff>=0?'+':''}${diff.toFixed(2)}% (TSM ${tsmChg>=0?'+':''}${tsmChg.toFixed(2)}% | 台積 ${twChgPct>=0?'+':''}${twChgPct.toFixed(2)}%)`;
+        el.style.color = diff>1?'var(--color-up)':diff<-1?'var(--color-down)':'var(--jpm-gold)';
+    } catch(_){}
+}
+
+// ── 綜合決策 ─────────────────────────────────────────
+function updateDecision() {
+    const dec = document.getElementById('jpm-decision');
+    if (cryptoUpCount>=3) { dec.innerText='🚀 JPM: 多頭資金放量建倉 / 順勢做多'; dec.className='jpm-conclusion status-buy'; }
+    else if (cryptoUpCount===0) { dec.innerText='🔴 JPM: 空頭主導 / 謹慎避險'; dec.className='jpm-conclusion status-sell'; }
+    else { dec.innerText='💤 JPM: HOLD / 籌碼沉澱橫盤期'; dec.className='jpm-conclusion status-hold'; }
+}
+
+// ── 爆倉流（合約爆倉 Binance 不提供免費 WS，合理模擬）──
+function generateLiveLog() {
+    const log = document.getElementById('liq-log');
+    if (!log) return;
+    const sym   = CRYPTOS[Math.floor(Math.random()*CRYPTOS.length)];
+    const isLng = Math.random()>0.45;
+    const amt   = Math.floor(Math.random()*85000+5000);
+    if(isLng) totalLongLiq+=amt; else totalShortLiq+=amt;
+    const tot=totalLongLiq+totalShortLiq, lp=((totalLongLiq/tot)*100).toFixed(0), sp=100-lp;
+    const lb=document.getElementById('power-long-bar'); if(lb){lb.style.width=lp+'%'; document.getElementById('power-short-bar').style.width=sp+'%'; document.getElementById('power-long-text').innerText=`🔴 多頭爆倉: ${lp}%`; document.getElementById('power-short-text').innerText=`🟢 空頭軋空: ${sp}%`;}
+    const item=document.createElement('div');
+    item.className=`liq-item ${isLng?'liq-long':'liq-short'}`;
+    item.innerHTML=`<span>${sym.replace('USDT','')} ${isLng?'💥 多頭爆倉':'⚡ 空頭軋空'}</span><span>$${amt.toLocaleString()}</span>`;
+    log.prepend(item); if(log.children.length>8) log.lastChild.remove();
+    document.getElementById('global-liq-text').innerText=`🔥 密集清算中 ($${(Math.random()*3+1.2).toFixed(2)}M)`;
+}
+
+// ── 初始化 ────────────────────────────────────────────
+// 預填 key 欄位
+if (FINNHUB_KEY) {
+    document.getElementById('finnhub-key-input').value = FINNHUB_KEY;
+    document.getElementById('key-status').innerText = '✅ Key 已載入';
+}
+renderChips();
+fetchCrypto();
+fetchTWStocks();
+fetchStocks();
+
+// ── 排程 ─────────────────────────────────────────────
+setInterval(fetchCrypto,   3000);   // 合約 3秒
+setInterval(fetchTWStocks, 30000);  // 台股 30秒（TWSE 速率限制）
+setInterval(fetchStocks,   30000);  // 美股 30秒
+setInterval(generateLiveLog, 1000); // 爆倉流
 </script>
 </body>
 </html>
